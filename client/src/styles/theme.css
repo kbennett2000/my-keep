@@ -662,12 +662,17 @@ button {
     margin: 0 8px;
   }
 
-  /* One comfortable column of full-width cards. */
+  /* Two columns of notes, like Keep's mobile app. */
   .notes-area {
-    padding: 16px 10px 64px;
+    padding: 16px 8px 64px;
   }
   .masonry {
-    columns: 1;
+    columns: 2;
+    column-gap: 8px;
+  }
+  /* Tighten card chrome so two columns aren't cramped on a ~360px screen. */
+  .note-card {
+    padding: 12px 12px 36px;
   }
   .composer,
   .notes-area .composer {
