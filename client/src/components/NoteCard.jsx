@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pin, PinOff, Palette, Tag, Archive, ArchiveRestore, Trash2, Check } from 'lucide-react';
 import { useNotes } from '../notes/NotesContext.jsx';
+import { bodyToDisplayHtml } from '../notes/richText.js';
 import ColorPicker from './ColorPicker.jsx';
 import LabelPicker from './LabelPicker.jsx';
 import AttachmentGrid from './AttachmentGrid.jsx';
@@ -66,7 +67,12 @@ export default function NoteCard({ note, onOpen }) {
           {hiddenCount > 0 && <li className="note-checklist-more">+ {hiddenCount} more</li>}
         </ul>
       ) : (
-        note.body && <div className="note-body">{note.body}</div>
+        note.body && (
+          <div
+            className="note-body"
+            dangerouslySetInnerHTML={{ __html: bodyToDisplayHtml(note.body) }}
+          />
+        )
       )}
 
       {note.labels.length > 0 && (

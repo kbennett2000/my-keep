@@ -81,7 +81,9 @@ function Shell() {
           )}
         </main>
       </div>
-      {openNote && <NoteEditorModal note={openNote} onClose={() => setOpenId(null)} />}
+      {openNote && (
+        <NoteEditorModal key={openNote.id} note={openNote} onClose={() => setOpenId(null)} />
+      )}
       {labelsEditorOpen && <LabelEditor onClose={() => setLabelsEditorOpen(false)} />}
     </div>
   );
