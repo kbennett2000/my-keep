@@ -194,3 +194,267 @@ button {
   padding: 0;
   text-decoration: underline;
 }
+
+/* ---------- notes area ---------- */
+.notes-area {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: none;
+  border-radius: 50%;
+  color: var(--text-muted);
+}
+.icon-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* ---------- composer ---------- */
+.composer {
+  width: 100%;
+  max-width: 600px;
+  margin: 8px auto 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+.composer.collapsed {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px 4px 16px;
+}
+.composer-open {
+  flex: 1;
+  text-align: left;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-weight: 500;
+  padding: 12px 0;
+}
+.composer.open {
+  padding: 12px 16px;
+}
+.composer-title,
+.composer-body,
+.modal-title,
+.modal-body {
+  width: 100%;
+  border: none;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  resize: vertical;
+  outline: none;
+}
+.composer-title,
+.modal-title {
+  font-weight: 500;
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+.composer-toolbar,
+.modal-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+}
+.composer-spacer {
+  flex: 1;
+}
+.composer-save {
+  border: none;
+  background: none;
+  color: var(--text);
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 4px;
+}
+.composer-save:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* ---------- masonry + groups ---------- */
+.group-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 8px 4px;
+}
+.masonry {
+  columns: 240px;
+  column-gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* ---------- note card ---------- */
+.note-card {
+  position: relative;
+  break-inside: avoid;
+  margin-bottom: 12px;
+  padding: 14px 16px 40px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: default;
+}
+.note-card:hover {
+  box-shadow: var(--shadow);
+}
+.note-pin {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  opacity: 0;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+}
+.note-card:hover .note-pin,
+.note-pin.active {
+  opacity: 1;
+}
+.note-title {
+  font-weight: 500;
+  margin-bottom: 6px;
+  padding-right: 24px;
+}
+.note-body {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.92rem;
+}
+.note-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.note-checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.92rem;
+  padding: 2px 0;
+}
+.note-checklist-item.checked span {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  border: 2px solid var(--text-muted);
+  border-radius: 3px;
+  background: none;
+  color: var(--text);
+  padding: 0;
+}
+.note-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+.note-label-chip {
+  font-size: 0.72rem;
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--text);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.note-toolbar {
+  position: absolute;
+  left: 6px;
+  bottom: 4px;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+}
+.note-card:hover .note-toolbar {
+  opacity: 1;
+}
+.note-toolbar .icon-btn {
+  width: 30px;
+  height: 30px;
+}
+
+/* ---------- checklist editor ---------- */
+.checklist-item,
+.checklist-add {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+}
+.checklist-item.checked .checklist-text {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.checklist-text {
+  flex: 1;
+  border: none;
+  background: none;
+  font: inherit;
+  color: var(--text);
+  outline: none;
+  padding: 4px 0;
+}
+.checklist-add-icon {
+  color: var(--text-muted);
+}
+
+/* ---------- color picker ---------- */
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.color-swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  padding: 0;
+}
+.color-swatch.selected {
+  outline: 2px solid var(--text);
+  outline-offset: 1px;
+}
+
+/* ---------- modal ---------- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: grid;
+  place-items: start center;
+  padding: 64px 16px;
+  z-index: 50;
+  overflow-y: auto;
+}
+.modal {
+  width: 100%;
+  max-width: 600px;
+  cursor: default;
+  box-shadow: var(--shadow);
+}
+.modal .note-pin {
+  opacity: 1;
+}
