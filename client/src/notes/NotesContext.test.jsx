@@ -23,16 +23,35 @@ function mockApi(impl) {
 const note = (over) => ({ id: 1, title: 'one', pinned: 0, archived: 0, items: [], labels: [], attachments: [], ...over });
 
 function Consumer() {
-  const { notes, createNote, deleteNote, updateNote, setView, setQuery } = useNotes();
+  const {
+    notes,
+    labels,
+    view,
+    createNote,
+    deleteNote,
+    updateNote,
+    setView,
+    setQuery,
+    createLabel,
+    assignLabel,
+    unassignLabel,
+    deleteLabel,
+  } = useNotes();
   return (
     <div>
       <div data-testid="titles">{notes.map((n) => n.title).join(',')}</div>
+      <div data-testid="labels">{labels.map((l) => l.name).join(',')}</div>
+      <div data-testid="viewkind">{view.kind}</div>
       <button onClick={() => createNote({ title: 'new' })}>create</button>
       <button onClick={() => deleteNote(1)}>del1</button>
       <button onClick={() => updateNote(1, { archived: false })}>unarchive1</button>
       <button onClick={() => setView({ kind: 'archive', labelId: null })}>archive-view</button>
       <button onClick={() => setView({ kind: 'label', labelId: 5 })}>label5-view</button>
       <button onClick={() => setQuery('milk')}>search-milk</button>
+      <button onClick={() => createLabel('work')}>create-label</button>
+      <button onClick={() => assignLabel(1, 9)}>assign-1-9</button>
+      <button onClick={() => unassignLabel(1, 9)}>unassign-1-9</button>
+      <button onClick={() => deleteLabel(5)}>del-label-5</button>
     </div>
   );
 }
@@ -125,5 +144,58 @@ describe('NotesContext views & queries', () => {
     await waitFor(() => expect(screen.getByTestId('titles')).toHaveTextContent('new,one'));
     fireEvent.click(screen.getByText('del1'));
     await waitFor(() => expect(screen.getByTestId('titles')).toHaveTextContent('new'));
+  });
+});
+
+describe('NotesContext label mutations', () => {
+  test('createLabel POSTs and reloads the label list', async () => {
+    let created = false;
+    mockApi((m, url) => {
+      if (m === 'POST' && url === '/api/labels') {
+        created = true;
+        return { status: 201, body: { id: 9, name: 'work' } };
+      }
+      if (url.startsWith('/api/labels')) return { status: 200, body: created ? [{ id: 9, name: 'work' }] : [] };
+      return { status: 200, body: [] };
+    });
+    renderApp();
+    await waitFor(() => expect(screen.getByTestId('viewkind')).toHaveTextContent('active'));
+    fireEvent.click(screen.getByText('create-label'));
+    await waitFor(() => expect(screen.getByTestId('labels')).toHaveTextContent('work'));
+  });
+
+  test('assignLabel / unassignLabel hit the note-label endpoints then refresh the note', async () => {
+    mockApi((m, url) => {
+      if (url.startsWith('/api/labels')) return { status: 200, body: [] };
+      if (url === '/api/notes/1') return { status: 200, body: note({ id: 1, title: 'one' }) };
+      if (url.startsWith('/api/notes/1/labels') || url.startsWith('/api/notes/1/labels/9'))
+        return { status: 200, body: { ok: true } };
+      return { status: 200, body: [note({ id: 1, title: 'one' })] };
+    });
+    renderApp();
+    await waitFor(() => expect(screen.getByTestId('titles')).toHaveTextContent('one'));
+
+    fireEvent.click(screen.getByText('assign-1-9'));
+    await waitFor(() =>
+      expect(fetch.mock.calls.some(([u, o]) => u === '/api/notes/1/labels' && o.method === 'POST')).toBe(true),
+    );
+
+    fireEvent.click(screen.getByText('unassign-1-9'));
+    await waitFor(() =>
+      expect(fetch.mock.calls.some(([u, o]) => u === '/api/notes/1/labels/9' && o.method === 'DELETE')).toBe(true),
+    );
+  });
+
+  test('deleting the label being viewed resets to the active view', async () => {
+    mockApi((m, url) => {
+      if (m === 'DELETE' && url === '/api/labels/5') return { status: 200, body: { ok: true } };
+      if (url.startsWith('/api/labels')) return { status: 200, body: [{ id: 5, name: 'gone' }] };
+      return { status: 200, body: [] };
+    });
+    renderApp();
+    fireEvent.click(screen.getByText('label5-view'));
+    await waitFor(() => expect(screen.getByTestId('viewkind')).toHaveTextContent('label'));
+    fireEvent.click(screen.getByText('del-label-5'));
+    await waitFor(() => expect(screen.getByTestId('viewkind')).toHaveTextContent('active'));
   });
 });

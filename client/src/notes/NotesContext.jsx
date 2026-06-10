@@ -102,6 +102,38 @@ export function NotesProvider({ children }) {
     return refreshNote(noteId);
   }
 
+  // --- labels ---
+  async function createLabel(name) {
+    const label = await apiPost('/api/labels', { name });
+    await loadLabels();
+    return label;
+  }
+
+  async function renameLabel(id, name) {
+    const label = await apiPatch(`/api/labels/${id}`, { name });
+    await loadLabels();
+    await reload(); // note chips reflect the new name
+    return label;
+  }
+
+  async function deleteLabel(id) {
+    await apiDelete(`/api/labels/${id}`);
+    // If we're viewing the label being deleted, fall back to the active view.
+    if (view.kind === 'label' && view.labelId === id) setView(ACTIVE_VIEW);
+    await loadLabels();
+    await reload();
+  }
+
+  async function assignLabel(noteId, labelId) {
+    await apiPost(`/api/notes/${noteId}/labels`, { labelId });
+    return refreshNote(noteId);
+  }
+
+  async function unassignLabel(noteId, labelId) {
+    await apiDelete(`/api/notes/${noteId}/labels/${labelId}`);
+    return refreshNote(noteId);
+  }
+
   const value = {
     notes,
     labels,
@@ -118,6 +150,11 @@ export function NotesProvider({ children }) {
     addItem,
     updateItem,
     deleteItem,
+    createLabel,
+    renameLabel,
+    deleteLabel,
+    assignLabel,
+    unassignLabel,
   };
   return <NotesContext.Provider value={value}>{children}</NotesContext.Provider>;
 }

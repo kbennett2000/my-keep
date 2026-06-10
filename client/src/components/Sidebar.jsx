@@ -1,10 +1,11 @@
-import { Lightbulb, Archive, Tag } from 'lucide-react';
+import { Lightbulb, Archive, Tag, Pencil } from 'lucide-react';
 import { useNotes } from '../notes/NotesContext.jsx';
 
-// Left navigation: Notes (active), Archive, then one entry per label. Selecting
-// an entry sets the current view; the active entry is highlighted.
+// Left navigation: Notes (active), Archive, then one entry per label, and an
+// "Edit labels" entry. Selecting a view entry sets the current view; the active
+// entry is highlighted.
 
-export default function Sidebar({ open }) {
+export default function Sidebar({ open, onEditLabels }) {
   const { view, setView, labels } = useNotes();
 
   const isActive = (kind, labelId = null) =>
@@ -45,6 +46,11 @@ export default function Sidebar({ open }) {
       >
         Archive
       </Item>
+
+      <button className="sidebar-item" onClick={onEditLabels}>
+        <Pencil size={20} />
+        <span className="sidebar-label">Edit labels</span>
+      </button>
     </nav>
   );
 }

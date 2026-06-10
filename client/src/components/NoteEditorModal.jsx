@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Pin, PinOff, Palette, Archive, ArchiveRestore, Trash2 } from 'lucide-react';
+import { Pin, PinOff, Palette, Tag, Archive, ArchiveRestore, Trash2 } from 'lucide-react';
 import { useNotes } from '../notes/NotesContext.jsx';
 import ColorPicker from './ColorPicker.jsx';
+import LabelPicker from './LabelPicker.jsx';
 import ChecklistEditor from './ChecklistEditor.jsx';
 
 // Full-note editor. Title/body are edited locally and persisted with a single
@@ -14,6 +15,7 @@ export default function NoteEditorModal({ note, onClose }) {
   const [title, setTitle] = useState(note.title);
   const [body, setBody] = useState(note.body);
   const [showColors, setShowColors] = useState(false);
+  const [showLabels, setShowLabels] = useState(false);
   // Hold the latest title/body in a ref so the unmount-time save sees them.
   const latest = useRef({ title, body });
   latest.current = { title, body };
@@ -102,6 +104,9 @@ export default function NoteEditorModal({ note, onClose }) {
           <button className="icon-btn" aria-label="Change color" onClick={() => setShowColors((s) => !s)}>
             <Palette size={18} />
           </button>
+          <button className="icon-btn" aria-label="Labels" onClick={() => setShowLabels((s) => !s)}>
+            <Tag size={18} />
+          </button>
           <button
             className="icon-btn"
             aria-label={note.archived ? 'Unarchive' : 'Archive'}
@@ -127,6 +132,8 @@ export default function NoteEditorModal({ note, onClose }) {
             }}
           />
         )}
+
+        {showLabels && <LabelPicker note={note} />}
       </div>
     </div>
   );

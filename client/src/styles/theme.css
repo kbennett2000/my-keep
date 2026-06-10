@@ -569,3 +569,99 @@ button {
 .notes-area .masonry-wrap {
   max-width: 1100px;
 }
+
+/* ---------- label picker (per-note popover) ---------- */
+.label-picker {
+  margin-top: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  padding: 6px;
+}
+.label-picker-list {
+  max-height: 160px;
+  overflow-y: auto;
+}
+.label-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: none;
+  background: none;
+  color: var(--text);
+  text-align: left;
+  padding: 5px 6px;
+  border-radius: 4px;
+}
+.label-picker-row:hover {
+  background: var(--surface-2);
+}
+.label-picker-row .checkbox {
+  border-color: var(--text-muted);
+}
+.label-picker-row.on .checkbox {
+  background: var(--text);
+  color: var(--surface);
+  border-color: var(--text);
+}
+.label-picker-empty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 4px 6px;
+  margin: 0;
+}
+.label-picker-create input {
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--border);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  outline: none;
+  padding: 8px 6px 4px;
+}
+
+/* ---------- label editor (modal) ---------- */
+.label-editor {
+  max-width: 420px;
+  padding: 16px;
+}
+.label-editor-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.label-editor-head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+.label-editor-create,
+.label-editor-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+.label-editor-create input,
+.label-editor-row input {
+  flex: 1;
+  border: none;
+  border-bottom: 1px solid transparent;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  outline: none;
+  padding: 6px 2px;
+}
+.label-editor-create input:focus,
+.label-editor-row input:focus {
+  border-bottom-color: var(--text-muted);
+}
+.label-editor-list {
+  margin-top: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
