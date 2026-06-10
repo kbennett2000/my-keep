@@ -68,4 +68,12 @@ describe('NoteCard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Check item' }));
     expect(notes.updateItem).toHaveBeenCalledWith(8, 11, { checked: true });
   });
+
+  test('an archived note shows Unarchive and restores it', () => {
+    const archived = { ...textNote, archived: 1 };
+    render(<NoteCard note={archived} onOpen={() => {}} />);
+    expect(screen.queryByRole('button', { name: 'Archive' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Unarchive' }));
+    expect(notes.updateNote).toHaveBeenCalledWith(7, { archived: false });
+  });
 });

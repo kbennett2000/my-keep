@@ -2,35 +2,64 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 import { apiGet, apiPost, apiPatch, apiDelete } from '../api.js';
 import { useAuth } from '../auth/AuthContext.jsx';
 
-// The notes data layer: holds the active (non-archived) notes and every
-// mutation, so cards and the editor modal can act without prop drilling.
-// Updates are server-confirmed — we await the API and patch local state from
-// the hydrated response, which keeps items/labels/attachments authoritative.
+// The notes data layer: holds the notes for the current *view* (active /
+// archive / a label), the search query, the user's labels, and every mutation,
+// so cards, the editor, and the sidebar can act without prop drilling. Updates
+// are server-confirmed — we await the API and patch local state from the
+// hydrated response, which keeps items/labels/attachments authoritative.
 
 const NotesContext = createContext(null);
 
+const ACTIVE_VIEW = { kind: 'active', labelId: null };
+
+// Build the GET /api/notes query string for a view + search query.
+function buildQuery(view, query) {
+  const p = new URLSearchParams();
+  p.set('archived', view.kind === 'archive' ? '1' : '0');
+  if (view.kind === 'label' && view.labelId) p.set('label', String(view.labelId));
+  if (query.trim()) p.set('q', query.trim());
+  return p.toString();
+}
+
+// Would this note still belong in the current view after an edit?
+function matchesView(note, view) {
+  if (view.kind === 'archive') return !!note.archived;
+  if (note.archived) return false; // active and label views show only non-archived
+  if (view.kind === 'label') return note.labels.some((l) => l.id === view.labelId);
+  return true;
+}
+
 export function NotesProvider({ children }) {
   const { user } = useAuth();
+  const userId = user?.id;
   const [notes, setNotes] = useState([]);
+  const [labels, setLabels] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState(ACTIVE_VIEW);
+  const [query, setQuery] = useState('');
 
   const reload = useCallback(async () => {
     setLoading(true);
     try {
-      setNotes(await apiGet('/api/notes'));
+      setNotes(await apiGet(`/api/notes?${buildQuery(view, query)}`));
     } finally {
       setLoading(false);
     }
+  }, [view, query]);
+
+  const loadLabels = useCallback(async () => {
+    setLabels(await apiGet('/api/labels'));
   }, []);
 
-  // Depend on the stable user id, not the object identity, so a new user object
-  // with the same id doesn't re-trigger a load.
-  const userId = user?.id;
+  // Refetch whenever the user, view, or query changes.
   useEffect(() => {
     if (userId) reload();
   }, [userId, reload]);
 
-  // Re-fetch a single note and replace it in place (used after item edits).
+  useEffect(() => {
+    if (userId) loadLabels();
+  }, [userId, loadLabels]);
+
   const refreshNote = useCallback(async (id) => {
     const note = await apiGet(`/api/notes/${id}`);
     setNotes((prev) => prev.map((n) => (n.id === id ? note : n)));
@@ -45,9 +74,10 @@ export function NotesProvider({ children }) {
 
   async function updateNote(id, patch) {
     const note = await apiPatch(`/api/notes/${id}`, patch);
-    // An archived note leaves the active list entirely.
+    // Keep the note only if it still belongs in the current view (e.g.
+    // archiving in the active view, or unarchiving in the archive view, drops it).
     setNotes((prev) =>
-      note.archived ? prev.filter((n) => n.id !== id) : prev.map((n) => (n.id === id ? note : n)),
+      matchesView(note, view) ? prev.map((n) => (n.id === id ? note : n)) : prev.filter((n) => n.id !== id),
     );
     return note;
   }
@@ -74,8 +104,14 @@ export function NotesProvider({ children }) {
 
   const value = {
     notes,
+    labels,
     loading,
+    view,
+    query,
+    setView,
+    setQuery,
     reload,
+    loadLabels,
     createNote,
     updateNote,
     deleteNote,
