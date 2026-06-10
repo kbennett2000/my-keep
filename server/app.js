@@ -60,8 +60,12 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/auth', require('./routes/auth'));
 
+const { requireAuth } = require('./middleware');
+const { notesRouter, itemsRouter } = require('./routes/notes');
+app.use('/api/notes', requireAuth, notesRouter);
+app.use('/api/items', requireAuth, itemsRouter);
+
 // Route stubs for later slices are mounted here as they land:
-//   app.use('/api/notes', require('./routes/notes'));
 //   app.use('/api/labels', require('./routes/labels'));
 //   app.use('/api', require('./routes/attachments'));
 
