@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pin, PinOff, Palette, Archive, Trash2, Check } from 'lucide-react';
+import { Pin, PinOff, Palette, Archive, ArchiveRestore, Trash2, Check } from 'lucide-react';
 import { useNotes } from '../notes/NotesContext.jsx';
 import ColorPicker from './ColorPicker.jsx';
 
@@ -70,13 +70,23 @@ export default function NoteCard({ note, onOpen }) {
         <button className="icon-btn" aria-label="Change color" onClick={() => setShowColors((s) => !s)}>
           <Palette size={18} />
         </button>
-        <button
-          className="icon-btn"
-          aria-label="Archive"
-          onClick={() => updateNote(note.id, { archived: true })}
-        >
-          <Archive size={18} />
-        </button>
+        {note.archived ? (
+          <button
+            className="icon-btn"
+            aria-label="Unarchive"
+            onClick={() => updateNote(note.id, { archived: false })}
+          >
+            <ArchiveRestore size={18} />
+          </button>
+        ) : (
+          <button
+            className="icon-btn"
+            aria-label="Archive"
+            onClick={() => updateNote(note.id, { archived: true })}
+          >
+            <Archive size={18} />
+          </button>
+        )}
         <button className="icon-btn" aria-label="Delete" onClick={() => deleteNote(note.id)}>
           <Trash2 size={18} />
         </button>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Pin, PinOff, Palette, Archive, Trash2 } from 'lucide-react';
+import { Pin, PinOff, Palette, Archive, ArchiveRestore, Trash2 } from 'lucide-react';
 import { useNotes } from '../notes/NotesContext.jsx';
 import ColorPicker from './ColorPicker.jsx';
 import ChecklistEditor from './ChecklistEditor.jsx';
@@ -39,8 +39,8 @@ export default function NoteEditorModal({ note, onClose }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function archive() {
-    await updateNote(note.id, { archived: true });
+  async function toggleArchive() {
+    await updateNote(note.id, { archived: !note.archived });
     onClose();
   }
   async function remove() {
@@ -102,8 +102,12 @@ export default function NoteEditorModal({ note, onClose }) {
           <button className="icon-btn" aria-label="Change color" onClick={() => setShowColors((s) => !s)}>
             <Palette size={18} />
           </button>
-          <button className="icon-btn" aria-label="Archive" onClick={archive}>
-            <Archive size={18} />
+          <button
+            className="icon-btn"
+            aria-label={note.archived ? 'Unarchive' : 'Archive'}
+            onClick={toggleArchive}
+          >
+            {note.archived ? <ArchiveRestore size={18} /> : <Archive size={18} />}
           </button>
           <button className="icon-btn" aria-label="Delete" onClick={remove}>
             <Trash2 size={18} />
