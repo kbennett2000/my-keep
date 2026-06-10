@@ -3,13 +3,15 @@ import { Pin, PinOff, Palette, Tag, Archive, ArchiveRestore, Trash2, Check } fro
 import { useNotes } from '../notes/NotesContext.jsx';
 import ColorPicker from './ColorPicker.jsx';
 import LabelPicker from './LabelPicker.jsx';
+import AttachmentGrid from './AttachmentGrid.jsx';
+import ImageButton from './ImageButton.jsx';
 
 // A single note in the grid. Clicking the body opens the editor modal; toolbar
 // buttons and checklist checkboxes stop propagation so they don't also open it.
 // Checklist items can be checked right here; text editing happens in the modal.
 
 export default function NoteCard({ note, onOpen }) {
-  const { updateNote, deleteNote, updateItem } = useNotes();
+  const { updateNote, deleteNote, updateItem, uploadAttachment } = useNotes();
   const [showColors, setShowColors] = useState(false);
   const [showLabels, setShowLabels] = useState(false);
   const stop = (e) => e.stopPropagation();
@@ -30,6 +32,8 @@ export default function NoteCard({ note, onOpen }) {
       >
         {note.pinned ? <Pin size={18} /> : <PinOff size={18} />}
       </button>
+
+      <AttachmentGrid attachments={note.attachments} />
 
       {note.title && <div className="note-title">{note.title}</div>}
 
@@ -75,6 +79,7 @@ export default function NoteCard({ note, onOpen }) {
         <button className="icon-btn" aria-label="Labels" onClick={() => setShowLabels((s) => !s)}>
           <Tag size={18} />
         </button>
+        <ImageButton onSelect={(file) => uploadAttachment(note.id, file)} />
         {note.archived ? (
           <button
             className="icon-btn"

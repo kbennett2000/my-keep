@@ -37,6 +37,8 @@ function Consumer() {
     unassignLabel,
     deleteLabel,
     reorderNotes,
+    uploadAttachment,
+    deleteAttachment,
   } = useNotes();
   return (
     <div>
@@ -54,6 +56,10 @@ function Consumer() {
       <button onClick={() => unassignLabel(1, 9)}>unassign-1-9</button>
       <button onClick={() => deleteLabel(5)}>del-label-5</button>
       <button onClick={() => reorderNotes([...notes].reverse())}>reorder-reverse</button>
+      <button onClick={() => uploadAttachment(1, new File(['x'], 'a.png', { type: 'image/png' }))}>
+        upload-att
+      </button>
+      <button onClick={() => deleteAttachment(1, 5)}>delete-att</button>
     </div>
   );
 }
@@ -199,6 +205,46 @@ describe('NotesContext label mutations', () => {
     await waitFor(() => expect(screen.getByTestId('viewkind')).toHaveTextContent('label'));
     fireEvent.click(screen.getByText('del-label-5'));
     await waitFor(() => expect(screen.getByTestId('viewkind')).toHaveTextContent('active'));
+  });
+});
+
+describe('NotesContext attachments', () => {
+  test('uploadAttachment POSTs multipart then refreshes the note', async () => {
+    mockApi((m, url) => {
+      if (url.startsWith('/api/labels')) return { status: 200, body: [] };
+      if (m === 'POST' && url === '/api/notes/1/attachments')
+        return { status: 201, body: { id: 5, mime: 'image/png', url: '/api/attachments/5' } };
+      if (url === '/api/notes/1') return { status: 200, body: note({ id: 1, title: 'one' }) };
+      return { status: 200, body: [note({ id: 1, title: 'one' })] };
+    });
+    renderApp();
+    await waitFor(() => expect(screen.getByTestId('titles')).toHaveTextContent('one'));
+
+    fireEvent.click(screen.getByText('upload-att'));
+    await waitFor(() => {
+      const call = fetch.mock.calls.find(([u, o]) => u === '/api/notes/1/attachments' && o.method === 'POST');
+      expect(call).toBeTruthy();
+      expect(call[1].body).toBeInstanceOf(FormData);
+    });
+    // refreshes the note afterward
+    await waitFor(() => expect(fetch.mock.calls.some(([u]) => u === '/api/notes/1')).toBe(true));
+  });
+
+  test('deleteAttachment DELETEs the attachment then refreshes the note', async () => {
+    mockApi((m, url) => {
+      if (url.startsWith('/api/labels')) return { status: 200, body: [] };
+      if (m === 'DELETE' && url === '/api/attachments/5') return { status: 200, body: { ok: true } };
+      if (url === '/api/notes/1') return { status: 200, body: note({ id: 1, title: 'one' }) };
+      return { status: 200, body: [note({ id: 1, title: 'one' })] };
+    });
+    renderApp();
+    await waitFor(() => expect(screen.getByTestId('titles')).toHaveTextContent('one'));
+
+    fireEvent.click(screen.getByText('delete-att'));
+    await waitFor(() =>
+      expect(fetch.mock.calls.some(([u, o]) => u === '/api/attachments/5' && o.method === 'DELETE')).toBe(true),
+    );
+    await waitFor(() => expect(fetch.mock.calls.some(([u]) => u === '/api/notes/1')).toBe(true));
   });
 });
 

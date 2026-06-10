@@ -4,6 +4,8 @@ import { useNotes } from '../notes/NotesContext.jsx';
 import ColorPicker from './ColorPicker.jsx';
 import LabelPicker from './LabelPicker.jsx';
 import ChecklistEditor from './ChecklistEditor.jsx';
+import AttachmentGrid from './AttachmentGrid.jsx';
+import ImageButton from './ImageButton.jsx';
 
 // Full-note editor. Title/body are edited locally and persisted with a single
 // PATCH on close; color, pin, archive, and checklist item ops persist
@@ -11,7 +13,8 @@ import ChecklistEditor from './ChecklistEditor.jsx';
 // backdrop click closes.
 
 export default function NoteEditorModal({ note, onClose }) {
-  const { updateNote, deleteNote, addItem, updateItem, deleteItem } = useNotes();
+  const { updateNote, deleteNote, addItem, updateItem, deleteItem, uploadAttachment, deleteAttachment } =
+    useNotes();
   const [title, setTitle] = useState(note.title);
   const [body, setBody] = useState(note.body);
   const [showColors, setShowColors] = useState(false);
@@ -65,6 +68,11 @@ export default function NoteEditorModal({ note, onClose }) {
           {note.pinned ? <Pin size={18} /> : <PinOff size={18} />}
         </button>
 
+        <AttachmentGrid
+          attachments={note.attachments}
+          onDelete={(a) => deleteAttachment(note.id, a.id)}
+        />
+
         <input
           className="modal-title"
           placeholder="Title"
@@ -107,6 +115,7 @@ export default function NoteEditorModal({ note, onClose }) {
           <button className="icon-btn" aria-label="Labels" onClick={() => setShowLabels((s) => !s)}>
             <Tag size={18} />
           </button>
+          <ImageButton onSelect={(file) => uploadAttachment(note.id, file)} />
           <button
             className="icon-btn"
             aria-label={note.archived ? 'Unarchive' : 'Archive'}
