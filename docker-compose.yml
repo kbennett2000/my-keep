@@ -1,0 +1,18 @@
+services:
+  mykeep:
+    build: .
+    image: mykeep
+    container_name: mykeep
+    # Host port comes from PORT in .env (default 8065). The container always
+    # listens on 8065 internally; change PORT to reach it on a different port.
+    ports:
+      - "${PORT:-8065}:8065"
+    environment:
+      # Required: a long random string that signs login cookies.
+      SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET in .env (see .env.example)}
+      PORT: "8065"
+      DATA_DIR: /app/data
+    # Notes database + uploaded images persist here on the host.
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
