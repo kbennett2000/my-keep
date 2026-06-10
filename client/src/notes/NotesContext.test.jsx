@@ -36,6 +36,7 @@ function Consumer() {
     assignLabel,
     unassignLabel,
     deleteLabel,
+    reorderNotes,
   } = useNotes();
   return (
     <div>
@@ -52,6 +53,7 @@ function Consumer() {
       <button onClick={() => assignLabel(1, 9)}>assign-1-9</button>
       <button onClick={() => unassignLabel(1, 9)}>unassign-1-9</button>
       <button onClick={() => deleteLabel(5)}>del-label-5</button>
+      <button onClick={() => reorderNotes([...notes].reverse())}>reorder-reverse</button>
     </div>
   );
 }
@@ -197,5 +199,34 @@ describe('NotesContext label mutations', () => {
     await waitFor(() => expect(screen.getByTestId('viewkind')).toHaveTextContent('label'));
     fireEvent.click(screen.getByText('del-label-5'));
     await waitFor(() => expect(screen.getByTestId('viewkind')).toHaveTextContent('active'));
+  });
+});
+
+describe('NotesContext reorder', () => {
+  test('reorderNotes reuses the position pool, PATCHes, and re-sorts', async () => {
+    mockApi((m, url) => {
+      if (url.startsWith('/api/labels')) return { status: 200, body: [] };
+      if (m === 'PATCH' && url === '/api/notes/reorder') return { status: 200, body: { ok: true } };
+      // A has higher position so it sorts first initially.
+      return {
+        status: 200,
+        body: [note({ id: 1, title: 'A', position: 2 }), note({ id: 2, title: 'B', position: 1 })],
+      };
+    });
+    renderApp();
+    await waitFor(() => expect(screen.getByTestId('titles')).toHaveTextContent('A,B'));
+
+    fireEvent.click(screen.getByText('reorder-reverse'));
+
+    // New order is B,A; the pool [2,1] is reassigned to the new order (B->2, A->1).
+    await waitFor(() => expect(screen.getByTestId('titles')).toHaveTextContent('B,A'));
+    const patch = fetch.mock.calls.find(([u, o]) => u === '/api/notes/reorder' && o.method === 'PATCH');
+    expect(patch).toBeTruthy();
+    expect(JSON.parse(patch[1].body)).toEqual({
+      positions: [
+        { id: 2, position: 2 },
+        { id: 1, position: 1 },
+      ],
+    });
   });
 });

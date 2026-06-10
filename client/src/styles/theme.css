@@ -665,3 +665,18 @@ button {
   max-height: 320px;
   overflow-y: auto;
 }
+
+/* ---------- drag-reorder ---------- */
+.sortable-note {
+  break-inside: avoid;
+  cursor: grab;
+}
+.sortable-note:active {
+  cursor: grabbing;
+}
+.sortable-note.dragging {
+  cursor: grabbing;
+}
+.sortable-note.dragging .note-card {
+  box-shadow: var(--shadow);
+}
