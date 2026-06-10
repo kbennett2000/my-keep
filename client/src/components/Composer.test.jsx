@@ -9,17 +9,20 @@ import Composer from './Composer.jsx';
 beforeEach(() => notes.createNote.mockClear());
 
 describe('Composer', () => {
-  test('creating a text note calls createNote with title + body', async () => {
+  // The body is now a TipTap rich-text editor, which can't be meaningfully typed
+  // into under jsdom (formatting is covered by richText + the editor smoke test).
+  // Here we exercise the create path via the title; an untouched editor yields an
+  // empty body.
+  test('creating a text note calls createNote with the title and an empty body', async () => {
     render(<Composer />);
     fireEvent.click(screen.getByText('Take a note…'));
     fireEvent.change(screen.getByPlaceholderText('Title'), { target: { value: 'Trip' } });
-    fireEvent.change(screen.getByPlaceholderText('Take a note…'), { target: { value: 'pack bags' } });
     fireEvent.click(screen.getByText('Save'));
     await waitFor(() =>
       expect(notes.createNote).toHaveBeenCalledWith({
         type: 'text',
         title: 'Trip',
-        body: 'pack bags',
+        body: '',
         color: 'default',
       }),
     );

@@ -6,6 +6,8 @@ import LabelPicker from './LabelPicker.jsx';
 import ChecklistEditor from './ChecklistEditor.jsx';
 import AttachmentGrid from './AttachmentGrid.jsx';
 import ImageButton from './ImageButton.jsx';
+import RichTextEditor from './RichTextEditor.jsx';
+import { bodyToEditorHtml, isBodyEmpty } from '../notes/richText.js';
 
 // Full-note editor. Title/body are edited locally and persisted with a single
 // PATCH on close; color, pin, archive, and checklist item ops persist
@@ -16,7 +18,11 @@ export default function NoteEditorModal({ note, onClose }) {
   const { updateNote, deleteNote, addItem, updateItem, deleteItem, uploadAttachment, deleteAttachment } =
     useNotes();
   const [title, setTitle] = useState(note.title);
-  const [body, setBody] = useState(note.body);
+  // Seed the rich-text editor once (converting legacy plain text to HTML). We
+  // compare against this seed to tell whether the body was actually edited, so
+  // merely opening a legacy note doesn't rewrite it as HTML.
+  const initialBodyHtml = useRef(bodyToEditorHtml(note.body)).current;
+  const [body, setBody] = useState(initialBodyHtml);
   const [showColors, setShowColors] = useState(false);
   const [showLabels, setShowLabels] = useState(false);
   // Hold the latest title/body in a ref so the unmount-time save sees them.
@@ -26,7 +32,9 @@ export default function NoteEditorModal({ note, onClose }) {
   function persistText() {
     const patch = {};
     if (latest.current.title !== note.title) patch.title = latest.current.title;
-    if (latest.current.body !== note.body) patch.body = latest.current.body;
+    if (latest.current.body !== initialBodyHtml) {
+      patch.body = isBodyEmpty(latest.current.body) ? '' : latest.current.body;
+    }
     if (Object.keys(patch).length) updateNote(note.id, patch);
   }
 
@@ -89,13 +97,7 @@ export default function NoteEditorModal({ note, onClose }) {
             onAdd={(content) => addItem(note.id, content)}
           />
         ) : (
-          <textarea
-            className="modal-body"
-            placeholder="Take a note…"
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            rows={6}
-          />
+          <RichTextEditor value={initialBodyHtml} onChange={setBody} />
         )}
 
         {note.labels.length > 0 && (

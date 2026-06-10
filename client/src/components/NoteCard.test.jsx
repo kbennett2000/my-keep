@@ -77,6 +77,19 @@ describe('NoteCard', () => {
     expect(notes.updateNote).toHaveBeenCalledWith(7, { archived: false });
   });
 
+  test('renders a rich-text body as formatted HTML', () => {
+    const rich = { ...textNote, body: '<p>hello <strong>bold</strong></p>' };
+    const { container } = render(<NoteCard note={rich} onOpen={() => {}} />);
+    expect(container.querySelector('.note-body strong')).toHaveTextContent('bold');
+  });
+
+  test('sanitizes a malicious body (strips <script>)', () => {
+    const evil = { ...textNote, body: '<p>safe</p><script>alert(1)</script>' };
+    const { container } = render(<NoteCard note={evil} onOpen={() => {}} />);
+    expect(container.querySelector('script')).toBeNull();
+    expect(container.querySelector('.note-body')).toHaveTextContent('safe');
+  });
+
   test('a long checklist is capped to a preview with "+ N more"', () => {
     const items = Array.from({ length: 11 }, (_, i) => ({ id: 100 + i, content: `item ${i}`, checked: 0 }));
     const big = { ...listNote, items };

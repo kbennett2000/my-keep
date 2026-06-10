@@ -1,8 +1,10 @@
 import { useState, useRef } from 'react';
 import { ListChecks, Type, Palette } from 'lucide-react';
 import { useNotes } from '../notes/NotesContext.jsx';
+import { isBodyEmpty } from '../notes/richText.js';
 import ColorPicker from './ColorPicker.jsx';
 import ChecklistEditor from './ChecklistEditor.jsx';
+import RichTextEditor from './RichTextEditor.jsx';
 
 // "Take a note…" box. Collapsed it's a single line; expanded it edits a title
 // plus either a body (text note) or a checklist. Items are held locally with
@@ -28,12 +30,17 @@ export default function Composer() {
   async function save() {
     const items = draft.items.map((i) => ({ content: i.content, checked: i.checked }));
     const hasContent =
-      draft.title.trim() || draft.body.trim() || items.some((i) => i.content.trim());
+      draft.title.trim() || !isBodyEmpty(draft.body) || items.some((i) => i.content.trim());
     if (hasContent) {
       const payload =
         draft.mode === 'list'
           ? { type: 'list', title: draft.title, color: draft.color, items }
-          : { type: 'text', title: draft.title, body: draft.body, color: draft.color };
+          : {
+              type: 'text',
+              title: draft.title,
+              body: isBodyEmpty(draft.body) ? '' : draft.body,
+              color: draft.color,
+            };
       await createNote(payload);
     }
     reset();
@@ -87,13 +94,7 @@ export default function Composer() {
           onAdd={addItem}
         />
       ) : (
-        <textarea
-          className="composer-body"
-          placeholder="Take a note…"
-          value={draft.body}
-          onChange={(e) => set({ body: e.target.value })}
-          rows={3}
-        />
+        <RichTextEditor value={draft.body} onChange={(html) => set({ body: html })} />
       )}
 
       <div className="composer-toolbar">

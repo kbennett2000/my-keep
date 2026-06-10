@@ -357,7 +357,6 @@ button {
   word-break: break-word;
 }
 .note-body {
-  white-space: pre-wrap;
   word-break: break-word;
   font-size: 0.92rem;
   /* Truncate the preview so a long note doesn't make a giant card; the full
@@ -366,6 +365,13 @@ button {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 15;
   overflow: hidden;
+}
+/* The body is now rich HTML; keep paragraph spacing tight on the card. */
+.note-body p {
+  margin: 0 0 0.4em;
+}
+.note-body p:last-child {
+  margin-bottom: 0;
 }
 .note-checklist-more {
   font-size: 0.85rem;
@@ -487,7 +493,7 @@ button {
 }
 .modal {
   width: 100%;
-  max-width: 600px;
+  max-width: 640px;
   cursor: default;
   box-shadow: var(--shadow);
 }
@@ -813,4 +819,39 @@ button {
 }
 .sortable-note.dragging .note-card {
   box-shadow: var(--shadow);
+}
+
+/* ---------- rich-text editor (note body) ---------- */
+.rte {
+  width: 100%;
+}
+.rte-toolbar {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+.rte-toolbar .icon-btn {
+  width: 30px;
+  height: 30px;
+}
+.icon-btn.active {
+  background: rgba(0, 0, 0, 0.12);
+  color: var(--text);
+}
+[data-theme='dark'] .icon-btn.active {
+  background: rgba(255, 255, 255, 0.18);
+}
+/* TipTap's editable surface (also carries the .ProseMirror class). */
+.rte-content {
+  outline: none;
+  min-height: 120px;
+  font-size: 0.95rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.rte-content p {
+  margin: 0 0 0.5em;
+}
+.rte-content p:last-child {
+  margin-bottom: 0;
 }

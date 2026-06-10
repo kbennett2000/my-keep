@@ -7,6 +7,8 @@
 # never to be fetched:
 #   - reactjs.org / react.dev  — React's error-decoder link, shown only in a
 #                                console message; never requested.
+#   - prosemirror.net          — a docs link inside a ProseMirror (TipTap) thrown
+#                                Error message; never requested.
 #   - www.w3.org               — XML/SVG/MathML namespace identifiers; these are
 #                                DOM constants, not network requests.
 # Anything else is treated as a regression and fails the build.
@@ -23,7 +25,7 @@ if [ ! -f "$PUBLIC/index.html" ]; then
 fi
 
 # Allowlist of hosts that may appear as inert strings (never fetched).
-ALLOW='reactjs\.org|react\.dev|www\.w3\.org'
+ALLOW='reactjs\.org|react\.dev|prosemirror\.net|www\.w3\.org'
 
 # Collect every external URL token in the build, minus the allowlisted ones.
 offenders="$(grep -rhoE "https?://[a-zA-Z0-9./_-]+" "$PUBLIC" \
