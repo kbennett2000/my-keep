@@ -29,6 +29,13 @@ function matchesView(note, view) {
   return true;
 }
 
+// Match the server's ordering: pinned first, then higher position, then newer id.
+function sortNotes(list) {
+  return [...list].sort(
+    (a, b) => b.pinned - a.pinned || b.position - a.position || b.id - a.id,
+  );
+}
+
 export function NotesProvider({ children }) {
   const { user } = useAuth();
   const userId = user?.id;
@@ -134,6 +141,25 @@ export function NotesProvider({ children }) {
     return refreshNote(noteId);
   }
 
+  // Drag-reorder a group (pinned or others). Reuse the group's own position
+  // values as a pool — sorted descending and reassigned to the new visual order
+  // — so the global max stays stable and no global renumber is needed.
+  async function reorderNotes(groupInNewOrder) {
+    const pool = groupInNewOrder.map((n) => n.position).sort((a, b) => b - a);
+    const positions = groupInNewOrder.map((n, i) => ({ id: n.id, position: pool[i] }));
+    const posById = new Map(positions.map((p) => [p.id, p.position]));
+
+    // Optimistic: apply the new positions locally and re-sort immediately.
+    setNotes((prev) =>
+      sortNotes(prev.map((n) => (posById.has(n.id) ? { ...n, position: posById.get(n.id) } : n))),
+    );
+    try {
+      await apiPatch('/api/notes/reorder', { positions });
+    } catch {
+      reload(); // resync if the server rejected the reorder
+    }
+  }
+
   const value = {
     notes,
     labels,
@@ -155,6 +181,7 @@ export function NotesProvider({ children }) {
     deleteLabel,
     assignLabel,
     unassignLabel,
+    reorderNotes,
   };
   return <NotesContext.Provider value={value}>{children}</NotesContext.Provider>;
 }
