@@ -33,12 +33,20 @@ export default function App() {
   );
 }
 
+const isMobile = () => window.matchMedia('(max-width: 640px)').matches;
+
 function Shell() {
   const { notes, loading, view, query } = useNotes();
   const [openId, setOpenId] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Start open on desktop, closed on phones (where the sidebar is an overlay).
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth > 640);
   const [labelsEditorOpen, setLabelsEditorOpen] = useState(false);
   const [dark, toggleDark] = useDarkMode();
+
+  // On a phone the sidebar overlays the notes, so close it after picking a view.
+  const closeSidebarOnMobile = () => {
+    if (isMobile()) setSidebarOpen(false);
+  };
 
   // Resolve the open note from live state so the modal sees item/color updates.
   const openNote = notes.find((n) => n.id === openId) || null;
@@ -53,7 +61,15 @@ function Shell() {
         onToggleDark={toggleDark}
       />
       <div className="app-body">
-        <Sidebar open={sidebarOpen} onEditLabels={() => setLabelsEditorOpen(true)} />
+        <Sidebar
+          open={sidebarOpen}
+          onEditLabels={() => {
+            setLabelsEditorOpen(true);
+            closeSidebarOnMobile();
+          }}
+          onNavigate={closeSidebarOnMobile}
+        />
+        {sidebarOpen && <div className="sidebar-scrim" onClick={() => setSidebarOpen(false)} />}
         <main className="notes-area">
           {showComposer && <Composer />}
           {loading ? (
