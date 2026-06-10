@@ -7,6 +7,7 @@ import ChecklistEditor from './ChecklistEditor.jsx';
 import AttachmentGrid from './AttachmentGrid.jsx';
 import ImageButton from './ImageButton.jsx';
 import RichTextEditor from './RichTextEditor.jsx';
+import ConfirmDialog from './ConfirmDialog.jsx';
 import { bodyToEditorHtml, isBodyEmpty } from '../notes/richText.js';
 
 // Full-note editor. Title/body are edited locally and persisted with a single
@@ -25,9 +26,14 @@ export default function NoteEditorModal({ note, onClose }) {
   const [body, setBody] = useState(initialBodyHtml);
   const [showColors, setShowColors] = useState(false);
   const [showLabels, setShowLabels] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   // Hold the latest title/body in a ref so the unmount-time save sees them.
   const latest = useRef({ title, body });
   latest.current = { title, body };
+  // So the Esc handler can tell whether the confirm dialog is open (Esc should
+  // close the confirm, not the whole editor).
+  const confirmingRef = useRef(false);
+  confirmingRef.current = confirmingDelete;
 
   function persistText() {
     const patch = {};
@@ -45,7 +51,8 @@ export default function NoteEditorModal({ note, onClose }) {
 
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === 'Escape') close();
+      // While the delete confirmation is open, Esc closes that, not the editor.
+      if (e.key === 'Escape' && !confirmingRef.current) close();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -56,7 +63,7 @@ export default function NoteEditorModal({ note, onClose }) {
     await updateNote(note.id, { archived: !note.archived });
     onClose();
   }
-  async function remove() {
+  async function confirmRemove() {
     await deleteNote(note.id);
     onClose();
   }
@@ -125,7 +132,7 @@ export default function NoteEditorModal({ note, onClose }) {
           >
             {note.archived ? <ArchiveRestore size={18} /> : <Archive size={18} />}
           </button>
-          <button className="icon-btn" aria-label="Delete" onClick={remove}>
+          <button className="icon-btn" aria-label="Delete" onClick={() => setConfirmingDelete(true)}>
             <Trash2 size={18} />
           </button>
           <div className="composer-spacer" />
@@ -145,6 +152,14 @@ export default function NoteEditorModal({ note, onClose }) {
         )}
 
         {showLabels && <LabelPicker note={note} />}
+
+        {confirmingDelete && (
+          <ConfirmDialog
+            message="Delete this note?"
+            onConfirm={confirmRemove}
+            onCancel={() => setConfirmingDelete(false)}
+          />
+        )}
       </div>
     </div>
   );

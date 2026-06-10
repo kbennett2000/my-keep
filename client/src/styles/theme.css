@@ -872,3 +872,50 @@ button {
 .rte-content p:last-child {
   margin-bottom: 0;
 }
+
+/* ---------- confirm dialog ---------- */
+.confirm-backdrop {
+  /* Centered, and above the editor modal (which is z-index 50). */
+  place-items: center;
+  padding: 16px;
+  z-index: 60;
+}
+.confirm-dialog {
+  width: 100%;
+  max-width: 320px;
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+.confirm-message {
+  margin: 0 0 18px;
+  font-size: 0.98rem;
+}
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.confirm-cancel,
+.confirm-delete {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 500;
+}
+.confirm-cancel {
+  background: none;
+  color: var(--text);
+}
+.confirm-cancel:hover {
+  background: var(--surface-2);
+}
+.confirm-delete {
+  background: var(--danger);
+  color: #fff;
+}
+.confirm-delete:hover {
+  filter: brightness(0.93);
+}

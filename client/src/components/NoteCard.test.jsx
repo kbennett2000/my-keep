@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 
 const notes = { updateNote: vi.fn(), deleteNote: vi.fn(), updateItem: vi.fn() };
 vi.mock('../notes/NotesContext.jsx', () => ({ useNotes: () => notes }));
@@ -51,16 +51,36 @@ describe('NoteCard', () => {
     expect(onOpen).toHaveBeenCalledWith(textNote);
   });
 
-  test('toolbar pin / archive / delete call the right actions (and not onOpen)', () => {
+  test('toolbar pin / archive call the right actions (and not onOpen)', () => {
     const onOpen = vi.fn();
     render(<NoteCard note={textNote} onOpen={onOpen} />);
     fireEvent.click(screen.getByRole('button', { name: 'Pin' }));
     fireEvent.click(screen.getByRole('button', { name: 'Archive' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
     expect(notes.updateNote).toHaveBeenCalledWith(7, { pinned: true });
     expect(notes.updateNote).toHaveBeenCalledWith(7, { archived: true });
-    expect(notes.deleteNote).toHaveBeenCalledWith(7);
     expect(onOpen).not.toHaveBeenCalled();
+  });
+
+  test('delete asks for confirmation before deleting', () => {
+    const onOpen = vi.fn();
+    render(<NoteCard note={textNote} onOpen={onOpen} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' })); // toolbar trash
+    // Nothing deleted yet — a confirmation appears instead, and the card didn't open.
+    expect(notes.deleteNote).not.toHaveBeenCalled();
+    expect(onOpen).not.toHaveBeenCalled();
+    const dialog = screen.getByRole('alertdialog');
+    expect(dialog).toHaveTextContent('Delete this note?');
+    // Confirming deletes.
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Delete' }));
+    expect(notes.deleteNote).toHaveBeenCalledWith(7);
+  });
+
+  test('cancelling the confirmation keeps the note', () => {
+    render(<NoteCard note={textNote} onOpen={() => {}} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    fireEvent.click(within(screen.getByRole('alertdialog')).getByRole('button', { name: 'Cancel' }));
+    expect(notes.deleteNote).not.toHaveBeenCalled();
+    expect(screen.queryByRole('alertdialog')).toBeNull();
   });
 
   test('checking a list item calls updateItem', () => {
