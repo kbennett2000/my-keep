@@ -1,0 +1,12 @@
+node_modules
+client/node_modules
+client/dist
+server/public
+data
+.git
+.gitignore
+.env
+*.log
+npm-debug.log*
+.claude
+.DS_Store
