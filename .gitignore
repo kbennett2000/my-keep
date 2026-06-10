@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+client/node_modules/
+
+# Build output
+client/dist/
+server/public/
+
+# Runtime data (SQLite db + uploaded images) — never commit
+data/
+
+# Local env / secrets
+.env
+*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+
+# Claude Code local settings
+.claude/settings.local.json
