@@ -1,0 +1,26 @@
+{
+  "name": "my-keep-client",
+  "version": "0.1.0",
+  "description": "MyKeep React SPA — built to ../server/public and served by the Node server.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "jsdom": "^25.0.1",
+    "vite": "^7.0.0",
+    "vitest": "^3.0.0"
+  }
+}
