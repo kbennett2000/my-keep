@@ -34,7 +34,7 @@ db.exec(`
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     username      TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
-    created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+    created_at    TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
   );
 
   CREATE TABLE IF NOT EXISTS notes (
@@ -47,8 +47,8 @@ db.exec(`
     pinned     INTEGER NOT NULL DEFAULT 0 CHECK (pinned IN (0, 1)),
     archived   INTEGER NOT NULL DEFAULT 0 CHECK (archived IN (0, 1)),
     position   REAL NOT NULL DEFAULT 0,
-    created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+    updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
   );
   CREATE INDEX IF NOT EXISTS idx_notes_user ON notes(user_id);
 
@@ -80,7 +80,7 @@ db.exec(`
     note_id    INTEGER NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
     filename   TEXT NOT NULL,
     mime       TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
   );
   CREATE INDEX IF NOT EXISTS idx_attachments_note ON attachments(note_id);
 `);
