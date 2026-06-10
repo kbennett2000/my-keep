@@ -6,6 +6,7 @@ import ColorPicker from './ColorPicker.jsx';
 import LabelPicker from './LabelPicker.jsx';
 import AttachmentGrid from './AttachmentGrid.jsx';
 import ImageButton from './ImageButton.jsx';
+import ConfirmDialog from './ConfirmDialog.jsx';
 
 // A single note in the grid. Clicking the body opens the editor modal; toolbar
 // buttons and checklist checkboxes stop propagation so they don't also open it.
@@ -19,6 +20,7 @@ export default function NoteCard({ note, onOpen }) {
   const { updateNote, deleteNote, updateItem, uploadAttachment } = useNotes();
   const [showColors, setShowColors] = useState(false);
   const [showLabels, setShowLabels] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const stop = (e) => e.stopPropagation();
 
   const sortedItems = [...note.items].sort((a, b) => (a.checked ? 1 : 0) - (b.checked ? 1 : 0));
@@ -110,7 +112,7 @@ export default function NoteCard({ note, onOpen }) {
             <Archive size={18} />
           </button>
         )}
-        <button className="icon-btn" aria-label="Delete" onClick={() => deleteNote(note.id)}>
+        <button className="icon-btn" aria-label="Delete" onClick={() => setConfirmingDelete(true)}>
           <Trash2 size={18} />
         </button>
       </div>
@@ -128,6 +130,14 @@ export default function NoteCard({ note, onOpen }) {
       )}
 
       {showLabels && <LabelPicker note={note} />}
+
+      {confirmingDelete && (
+        <ConfirmDialog
+          message="Delete this note?"
+          onConfirm={() => deleteNote(note.id)}
+          onCancel={() => setConfirmingDelete(false)}
+        />
+      )}
     </div>
   );
 }

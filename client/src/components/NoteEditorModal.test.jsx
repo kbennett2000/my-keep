@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within, waitFor } from '@testing-library/react';
 
 const notes = {
   updateNote: vi.fn().mockResolvedValue({}),
@@ -56,5 +56,16 @@ describe('NoteEditorModal', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Change color' }));
     fireEvent.click(screen.getByRole('button', { name: 'green' }));
     expect(notes.updateNote).toHaveBeenCalledWith(5, { color: 'green' });
+  });
+
+  test('deleting asks for confirmation, then deletes and closes', async () => {
+    const onClose = vi.fn();
+    render(<NoteEditorModal note={note} onClose={onClose} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' })); // toolbar trash
+    expect(notes.deleteNote).not.toHaveBeenCalled();
+    const dialog = screen.getByRole('alertdialog');
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Delete' }));
+    await waitFor(() => expect(notes.deleteNote).toHaveBeenCalledWith(5));
+    await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 });
