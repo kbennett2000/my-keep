@@ -10,7 +10,8 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "nodemon server/index.js",
-    "test": "node --test --test-force-exit \"test/**/*.test.js\""
+    "test": "node --test --test-force-exit \"test/**/*.test.js\"",
+    "audit:offline": "bash scripts/offline-audit.sh"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
