@@ -10,6 +10,7 @@
   --border: #dadce0;
   --accent: #fbbc04;
   --danger: #d93025;
+  --link: #1a73e8;
   --shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
 
   /* Keep note colors (name -> background). */
@@ -34,6 +35,7 @@
   --text: #e8eaed;
   --text-muted: #9aa0a6;
   --border: #5f6368;
+  --link: #8ab4f8;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 1px 3px 1px rgba(0, 0, 0, 0.35);
 
   /* Keep's dark-mode note palette. */
@@ -298,6 +300,11 @@ button {
 .composer-spacer {
   flex: 1;
 }
+.modal-timestamp {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
 .composer-save {
   border: none;
   background: none;
@@ -374,6 +381,12 @@ button {
   -webkit-line-clamp: 15;
   overflow: hidden;
 }
+/* Auto-linked URLs in a note body. break-all so a long link can't widen the card. */
+.note-body a {
+  color: var(--link);
+  text-decoration: underline;
+  word-break: break-all;
+}
 /* The body is now rich HTML; keep paragraph spacing tight on the card. */
 .note-body p {
   margin: 0 0 0.4em;
@@ -432,6 +445,19 @@ button {
   color: var(--text);
   padding: 2px 8px;
   border-radius: 10px;
+}
+/* Keep-style timestamp, bottom-right. On hover the action toolbar (bottom-left)
+   appears; we hide the date then so the two never collide on a narrow card. On
+   touch there's no hover, so the date stays visible. */
+.note-timestamp {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+.note-card:hover .note-timestamp {
+  opacity: 0;
 }
 .note-toolbar {
   position: absolute;

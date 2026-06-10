@@ -110,6 +110,25 @@ describe('NoteCard', () => {
     expect(container.querySelector('.note-body')).toHaveTextContent('safe');
   });
 
+  test('a URL in the body renders as a clickable link, and clicking it does not open the note', () => {
+    const onOpen = vi.fn();
+    const linked = { ...textNote, body: 'see https://example.com' };
+    const { container } = render(<NoteCard note={linked} onOpen={onOpen} />);
+    const link = container.querySelector('.note-body a');
+    expect(link).not.toBeNull();
+    expect(link).toHaveAttribute('href', 'https://example.com');
+    expect(link).toHaveAttribute('target', '_blank');
+    fireEvent.click(link);
+    expect(onOpen).not.toHaveBeenCalled();
+  });
+
+  test('renders the note timestamp', () => {
+    const stamped = { ...textNote, updated_at: new Date().toISOString() };
+    render(<NoteCard note={stamped} onOpen={() => {}} />);
+    expect(document.querySelector('.note-timestamp')).not.toBeNull();
+    expect(document.querySelector('.note-timestamp').textContent.trim()).not.toBe('');
+  });
+
   test('a long checklist is capped to a preview with "+ N more"', () => {
     const items = Array.from({ length: 11 }, (_, i) => ({ id: 100 + i, content: `item ${i}`, checked: 0 }));
     const big = { ...listNote, items };
