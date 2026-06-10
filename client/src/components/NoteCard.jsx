@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Pin, PinOff, Palette, Archive, ArchiveRestore, Trash2, Check } from 'lucide-react';
+import { Pin, PinOff, Palette, Tag, Archive, ArchiveRestore, Trash2, Check } from 'lucide-react';
 import { useNotes } from '../notes/NotesContext.jsx';
 import ColorPicker from './ColorPicker.jsx';
+import LabelPicker from './LabelPicker.jsx';
 
 // A single note in the grid. Clicking the body opens the editor modal; toolbar
 // buttons and checklist checkboxes stop propagation so they don't also open it.
@@ -10,6 +11,7 @@ import ColorPicker from './ColorPicker.jsx';
 export default function NoteCard({ note, onOpen }) {
   const { updateNote, deleteNote, updateItem } = useNotes();
   const [showColors, setShowColors] = useState(false);
+  const [showLabels, setShowLabels] = useState(false);
   const stop = (e) => e.stopPropagation();
 
   return (
@@ -70,6 +72,9 @@ export default function NoteCard({ note, onOpen }) {
         <button className="icon-btn" aria-label="Change color" onClick={() => setShowColors((s) => !s)}>
           <Palette size={18} />
         </button>
+        <button className="icon-btn" aria-label="Labels" onClick={() => setShowLabels((s) => !s)}>
+          <Tag size={18} />
+        </button>
         {note.archived ? (
           <button
             className="icon-btn"
@@ -103,6 +108,8 @@ export default function NoteCard({ note, onOpen }) {
           />
         </div>
       )}
+
+      {showLabels && <LabelPicker note={note} />}
     </div>
   );
 }

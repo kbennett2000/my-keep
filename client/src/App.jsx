@@ -8,6 +8,7 @@ import Sidebar from './components/Sidebar.jsx';
 import Composer from './components/Composer.jsx';
 import Masonry from './components/Masonry.jsx';
 import NoteEditorModal from './components/NoteEditorModal.jsx';
+import LabelEditor from './components/LabelEditor.jsx';
 
 // Auth gate. While the initial /me check is in flight, show a spinner; logged
 // out -> AuthPage; logged in -> the notes app (top bar, sidebar, grid, modal).
@@ -36,6 +37,7 @@ function Shell() {
   const { notes, loading, view, query } = useNotes();
   const [openId, setOpenId] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [labelsEditorOpen, setLabelsEditorOpen] = useState(false);
   const [dark, toggleDark] = useDarkMode();
 
   // Resolve the open note from live state so the modal sees item/color updates.
@@ -51,7 +53,7 @@ function Shell() {
         onToggleDark={toggleDark}
       />
       <div className="app-body">
-        <Sidebar open={sidebarOpen} />
+        <Sidebar open={sidebarOpen} onEditLabels={() => setLabelsEditorOpen(true)} />
         <main className="notes-area">
           {showComposer && <Composer />}
           {loading ? (
@@ -64,6 +66,7 @@ function Shell() {
         </main>
       </div>
       {openNote && <NoteEditorModal note={openNote} onClose={() => setOpenId(null)} />}
+      {labelsEditorOpen && <LabelEditor onClose={() => setLabelsEditorOpen(false)} />}
     </div>
   );
 }
