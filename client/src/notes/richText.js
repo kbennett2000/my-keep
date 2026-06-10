@@ -60,10 +60,28 @@ export function plainTextToHtml(s) {
   return escaped.replace(/\r?\n/g, '<br>');
 }
 
-// Matches a bare URL (http/https) or a www.-prefixed host in plain text. We then
-// trim trailing sentence punctuation so "see https://x.com." doesn't swallow the
-// period into the link.
-const URL_RE = /(https?:\/\/[^\s<]+|www\.[^\s<]+)/gi;
+// Common public TLDs we'll auto-link as a *bare* domain (no scheme, no www.),
+// e.g. "cnn.com". Kept to genuinely common ones — deliberately NOT code-ish
+// suffixes (js, py, json, html, …) — so "Node.js", "config.json", and "v1.2"
+// stay plain text instead of turning into links.
+const BARE_TLDS =
+  'com|org|net|edu|gov|mil|int|io|co|dev|app|ai|me|info|biz|tv|news|xyz|us|uk|ca|au|de|fr|jp|nl|eu|es|it|ru|ch|se|no';
+
+// Matches, in priority order: a scheme URL (http/https), a www.-prefixed host,
+// or a bare domain ending in a common TLD with an optional port/path. The
+// bare-domain branch is guarded so it won't fire inside a larger token: a
+// negative lookbehind keeps it off email domains ("a@cnn.com") and mid-host
+// labels, and a negative lookahead after the TLD avoids "cnn.command". Trailing
+// sentence punctuation is trimmed below so "see cnn.com." keeps the period out
+// of the link.
+const URL_RE = new RegExp(
+  'https?:\\/\\/[^\\s<]+' +
+    '|www\\.[^\\s<]+' +
+    '|(?<![\\w@./])(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+(?:' +
+    BARE_TLDS +
+    ')(?![a-z0-9-])(?::\\d+)?(?:[/?#][^\\s<]*)?',
+  'gi',
+);
 const TRAILING_PUNCT = /[.,;:!?)\]}'"]+$/;
 
 // Walk the text nodes of already-sanitized HTML and wrap bare URLs in anchors.
@@ -107,7 +125,9 @@ function linkifyTextNode(node) {
     }
     if (matchStart > last) frag.appendChild(document.createTextNode(text.slice(last, matchStart)));
     const a = document.createElement('a');
-    a.setAttribute('href', /^www\./i.test(url) ? `https://${url}` : url);
+    // Prefix https:// whenever the match has no scheme (covers www. and bare
+    // domains). The visible link text stays exactly what the user typed.
+    a.setAttribute('href', /^https?:\/\//i.test(url) ? url : `https://${url}`);
     a.setAttribute('target', '_blank');
     a.setAttribute('rel', 'noopener noreferrer nofollow');
     a.textContent = url;

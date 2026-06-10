@@ -103,6 +103,36 @@ describe('bodyToDisplayHtml — auto-linkify', () => {
     expect(out).not.toMatch(/<script/i);
     expect(out).toMatch(/<a\b/i);
   });
+
+  test('links a bare domain (no scheme, no www.) and prefixes https://', () => {
+    const out = bodyToDisplayHtml('<p>cnn.com</p>');
+    expect(out).toMatch(/href="https:\/\/cnn\.com"/);
+    expect(out).toContain('>cnn.com<'); // visible text stays as typed
+  });
+
+  test('links a bare subdomain with a path', () => {
+    const out = bodyToDisplayHtml('<p>foo.cnn.com/world</p>');
+    expect(out).toMatch(/href="https:\/\/foo\.cnn\.com\/world"/);
+  });
+
+  test('links a scheme URL and a bare domain in the same text (the reported case)', () => {
+    const out = bodyToDisplayHtml('<p>https://www.foxnews.com and cnn.com</p>');
+    expect((out.match(/<a\b/gi) || []).length).toBe(2);
+    expect(out).toMatch(/href="https:\/\/www\.foxnews\.com"/);
+    expect(out).toMatch(/href="https:\/\/cnn\.com"/);
+  });
+
+  test('does NOT link code-ish dotted tokens', () => {
+    for (const token of ['Node.js', 'config.json', 'index.html', 'v1.2', '3.14']) {
+      const out = bodyToDisplayHtml(`<p>${token}</p>`);
+      expect(out, token).not.toMatch(/<a\b/i);
+    }
+  });
+
+  test('does NOT turn an email address into a link', () => {
+    const out = bodyToDisplayHtml('<p>email me at hi@cnn.com please</p>');
+    expect(out).not.toMatch(/<a\b/i);
+  });
 });
 
 describe('isBodyEmpty', () => {
