@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { apiGet, apiPost, apiPatch, apiDelete } from '../api.js';
+import { apiGet, apiPost, apiPatch, apiDelete, apiUpload } from '../api.js';
 import { useAuth } from '../auth/AuthContext.jsx';
 
 // The notes data layer: holds the notes for the current *view* (active /
@@ -141,6 +141,19 @@ export function NotesProvider({ children }) {
     return refreshNote(noteId);
   }
 
+  // --- attachments ---
+  async function uploadAttachment(noteId, file) {
+    const fd = new FormData();
+    fd.append('image', file);
+    await apiUpload(`/api/notes/${noteId}/attachments`, fd);
+    return refreshNote(noteId);
+  }
+
+  async function deleteAttachment(noteId, attachmentId) {
+    await apiDelete(`/api/attachments/${attachmentId}`);
+    return refreshNote(noteId);
+  }
+
   // Drag-reorder a group (pinned or others). Reuse the group's own position
   // values as a pool — sorted descending and reassigned to the new visual order
   // — so the global max stays stable and no global renumber is needed.
@@ -182,6 +195,8 @@ export function NotesProvider({ children }) {
     assignLabel,
     unassignLabel,
     reorderNotes,
+    uploadAttachment,
+    deleteAttachment,
   };
   return <NotesContext.Provider value={value}>{children}</NotesContext.Provider>;
 }
