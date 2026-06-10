@@ -1,0 +1,196 @@
+/* Design tokens. Light theme now; a [data-theme="dark"] override and the dark
+   toggle land in Slice 7. The --note-* colors are the Keep palette, defined
+   here once so note cards (Slice 6) can reference them by name. */
+:root {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f1f3f4;
+  --text: #202124;
+  --text-muted: #5f6368;
+  --border: #dadce0;
+  --accent: #fbbc04;
+  --danger: #d93025;
+  --shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+
+  /* Keep note colors (name -> background). */
+  --note-default: #ffffff;
+  --note-red: #f28b82;
+  --note-orange: #fbbc04;
+  --note-yellow: #fff475;
+  --note-green: #ccff90;
+  --note-teal: #a7ffeb;
+  --note-blue: #cbf0f8;
+  --note-darkblue: #aecbfa;
+  --note-purple: #d7aefb;
+  --note-pink: #fdcfe8;
+  --note-brown: #e6c9a8;
+  --note-gray: #e8eaed;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+/* ---------- loading ---------- */
+.app-loading {
+  height: 100%;
+  display: grid;
+  place-items: center;
+}
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--surface-2);
+  border-top-color: var(--text-muted);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- app shell ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.topbar-brand {
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.topbar-user {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+.topbar-logout {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  padding: 6px 14px;
+  border-radius: 6px;
+}
+.topbar-logout:hover {
+  background: var(--surface-2);
+}
+
+.notes-area {
+  padding: 32px 16px;
+}
+.empty-state {
+  text-align: center;
+  color: var(--text-muted);
+  margin-top: 48px;
+}
+
+/* ---------- auth ---------- */
+.auth-page {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  background: var(--surface-2);
+  padding: 24px;
+}
+.auth-card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--surface);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.auth-title {
+  margin: 0;
+  text-align: center;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+.auth-subtitle {
+  margin: 0 0 8px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.auth-field input {
+  font: inherit;
+  color: var(--text);
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.auth-field input:focus {
+  outline: 2px solid var(--note-darkblue);
+  outline-offset: -1px;
+}
+.auth-error {
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.85rem;
+}
+.auth-submit {
+  margin-top: 4px;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: var(--note-darkblue);
+  color: #202124;
+  font-weight: 500;
+}
+.auth-submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.auth-switch {
+  margin: 4px 0 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.auth-link {
+  border: none;
+  background: none;
+  color: #1a73e8;
+  padding: 0;
+  text-decoration: underline;
+}
