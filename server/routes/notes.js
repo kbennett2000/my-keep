@@ -10,8 +10,10 @@
  * so there's no existence leak and no scattered auth checks to get wrong.
  */
 
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
-const { db } = require('../db');
+const { db, UPLOADS_DIR } = require('../db');
 
 // Keep's palette. The client maps these names to CSS variables.
 const COLORS = new Set([
@@ -43,14 +45,28 @@ const stmtGetItemWithOwner = db.prepare(`
 `);
 const stmtDeleteItem = db.prepare('DELETE FROM list_items WHERE id = ?');
 
+const stmtLabelsForNote = db.prepare(`
+  SELECT l.id, l.name FROM labels l
+  JOIN note_labels nl ON nl.label_id = l.id
+  WHERE nl.note_id = ?
+  ORDER BY l.name COLLATE NOCASE ASC
+`);
+const stmtAttachmentsForNote = db.prepare('SELECT id, mime FROM attachments WHERE note_id = ? ORDER BY id ASC');
+const stmtAttachmentFilesForNote = db.prepare('SELECT filename FROM attachments WHERE note_id = ?');
+
 /** Returns the note row if it belongs to userId, else undefined. */
 function getOwnedNote(id, userId) {
   return stmtGetOwnedNote.get(id, userId);
 }
 
-/** Attach the ordered `items` array to a note row (empty for text notes). */
-function withItems(note) {
-  return { ...note, items: stmtItemsForNote.all(note.id) };
+/** Hydrate a note row with its items, labels, and attachments for API responses. */
+function hydrate(note) {
+  return {
+    ...note,
+    items: stmtItemsForNote.all(note.id),
+    labels: stmtLabelsForNote.all(note.id),
+    attachments: stmtAttachmentsForNote.all(note.id).map((a) => ({ ...a, url: `/api/attachments/${a.id}` })),
+  };
 }
 
 /** Parse an id path param to a positive integer, or null if invalid. */
@@ -62,30 +78,35 @@ function parseId(raw) {
 // ===================== notes router (mounted at /api/notes) =====================
 const notesRouter = express.Router();
 
-// GET /api/notes?archived=0&q=
+// GET /api/notes?archived=0&q=&label=
 notesRouter.get('/', (req, res) => {
   const userId = req.session.userId;
   const archived = req.query.archived === '1' ? 1 : 0;
   const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+  const labelId = parseId(req.query.label);
 
-  let rows;
+  // Build the query from the active filters. Notes stay user-scoped throughout.
+  const joins = [];
+  const where = ['n.user_id = ?', 'n.archived = ?'];
+  const params = [userId, archived];
   if (q) {
+    joins.push('LEFT JOIN list_items li ON li.note_id = n.id');
     const like = `%${q}%`;
-    rows = db.prepare(`
-      SELECT DISTINCT n.* FROM notes n
-      LEFT JOIN list_items li ON li.note_id = n.id
-      WHERE n.user_id = ? AND n.archived = ?
-        AND (n.title LIKE ? OR n.body LIKE ? OR li.content LIKE ?)
-      ORDER BY n.pinned DESC, n.position DESC, n.id DESC
-    `).all(userId, archived, like, like, like);
-  } else {
-    rows = db.prepare(`
-      SELECT * FROM notes
-      WHERE user_id = ? AND archived = ?
-      ORDER BY pinned DESC, position DESC, id DESC
-    `).all(userId, archived);
+    where.push('(n.title LIKE ? OR n.body LIKE ? OR li.content LIKE ?)');
+    params.push(like, like, like);
   }
-  res.json(rows.map(withItems));
+  if (labelId) {
+    joins.push('JOIN note_labels nl ON nl.note_id = n.id');
+    where.push('nl.label_id = ?');
+    params.push(labelId);
+  }
+
+  const rows = db.prepare(`
+    SELECT DISTINCT n.* FROM notes n ${joins.join(' ')}
+    WHERE ${where.join(' AND ')}
+    ORDER BY n.pinned DESC, n.position DESC, n.id DESC
+  `).all(...params);
+  res.json(rows.map(hydrate));
 });
 
 // POST /api/notes
@@ -124,7 +145,7 @@ notesRouter.post('/', (req, res) => {
   });
 
   const noteId = create();
-  res.status(201).json(withItems(getOwnedNote(noteId, userId)));
+  res.status(201).json(hydrate(getOwnedNote(noteId, userId)));
 });
 
 // PATCH /api/notes/reorder  (declared before /:id so "reorder" isn't read as an id)
@@ -156,7 +177,7 @@ notesRouter.get('/:id', (req, res) => {
   const id = parseId(req.params.id);
   const note = id && getOwnedNote(id, req.session.userId);
   if (!note) return res.status(404).json({ error: 'not found' });
-  res.json(withItems(note));
+  res.json(hydrate(note));
 });
 
 // PATCH /api/notes/:id
@@ -187,7 +208,7 @@ notesRouter.patch('/:id', (req, res) => {
     db.prepare(`UPDATE notes SET ${setClause}, updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE id = @id AND user_id = @user_id`)
       .run({ ...fields, id, user_id: userId });
   }
-  res.json(withItems(getOwnedNote(id, userId)));
+  res.json(hydrate(getOwnedNote(id, userId)));
 });
 
 // DELETE /api/notes/:id
@@ -195,7 +216,14 @@ notesRouter.delete('/:id', (req, res) => {
   const id = parseId(req.params.id);
   const note = id && getOwnedNote(id, req.session.userId);
   if (!note) return res.status(404).json({ error: 'not found' });
+
+  // Capture attachment filenames before the cascade clears their rows, then
+  // unlink the files so a deleted note doesn't orphan images on disk.
+  const files = stmtAttachmentFilesForNote.all(id).map((r) => r.filename);
   stmtDeleteNote.run(id, req.session.userId);
+  for (const f of files) {
+    fs.rm(path.join(UPLOADS_DIR, f), { force: true }, () => {});
+  }
   res.json({ ok: true });
 });
 

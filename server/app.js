@@ -62,12 +62,17 @@ app.use('/api/auth', require('./routes/auth'));
 
 const { requireAuth } = require('./middleware');
 const { notesRouter, itemsRouter } = require('./routes/notes');
-app.use('/api/notes', requireAuth, notesRouter);
-app.use('/api/items', requireAuth, itemsRouter);
+const { labelsRouter, noteLabelsRouter } = require('./routes/labels');
+const { noteAttachmentsRouter, attachmentsRouter } = require('./routes/attachments');
 
-// Route stubs for later slices are mounted here as they land:
-//   app.use('/api/labels', require('./routes/labels'));
-//   app.use('/api', require('./routes/attachments'));
+// Note-scoped routers (notes, label assign/unassign, attachment upload) all
+// mount at /api/notes; Express tries them in order.
+app.use('/api/notes', requireAuth, notesRouter);
+app.use('/api/notes', requireAuth, noteLabelsRouter);
+app.use('/api/notes', requireAuth, noteAttachmentsRouter);
+app.use('/api/items', requireAuth, itemsRouter);
+app.use('/api/labels', requireAuth, labelsRouter);
+app.use('/api/attachments', requireAuth, attachmentsRouter);
 
 // --- Static SPA (guarded: no-ops until the client has been built) ---
 if (fs.existsSync(path.join(PUBLIC_DIR, 'index.html'))) {
