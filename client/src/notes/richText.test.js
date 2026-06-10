@@ -65,6 +65,46 @@ describe('bodyToDisplayHtml / bodyToEditorHtml', () => {
   });
 });
 
+describe('bodyToDisplayHtml — auto-linkify', () => {
+  test('wraps a typed https URL in a safe new-tab anchor', () => {
+    const out = bodyToDisplayHtml('<p>see https://example.com now</p>');
+    expect(out).toMatch(/<a [^>]*href="https:\/\/example\.com"/);
+    expect(out).toMatch(/target="_blank"/);
+    expect(out).toMatch(/rel="[^"]*noopener[^"]*"/);
+    expect(out).toContain('>https://example.com<');
+  });
+
+  test('links a www. URL by prefixing https://', () => {
+    const out = bodyToDisplayHtml('<p>www.example.com</p>');
+    expect(out).toMatch(/href="https:\/\/www\.example\.com"/);
+    expect(out).toContain('>www.example.com<'); // visible text keeps the www. form
+  });
+
+  test('keeps trailing sentence punctuation out of the link', () => {
+    const out = bodyToDisplayHtml('<p>visit https://example.com.</p>');
+    expect(out).toMatch(/href="https:\/\/example\.com"/);
+    expect(out).not.toMatch(/href="https:\/\/example\.com\."/);
+    expect(out).toContain('.</p>');
+  });
+
+  test('a javascript: scheme in text is NOT turned into a clickable link', () => {
+    const out = bodyToDisplayHtml('<p>javascript:alert(1)</p>');
+    expect(out).not.toMatch(/<a\b/i);
+  });
+
+  test('wraps a URL exactly once and preserves other formatting', () => {
+    const out = bodyToDisplayHtml('<p><strong>b</strong> http://a.test x</p>');
+    expect(out).toContain('<strong>b</strong>');
+    expect((out.match(/<a\b/gi) || []).length).toBe(1);
+  });
+
+  test('still strips <script> on the display path', () => {
+    const out = bodyToDisplayHtml('<p>http://a.test</p><script>bad</script>');
+    expect(out).not.toMatch(/<script/i);
+    expect(out).toMatch(/<a\b/i);
+  });
+});
+
 describe('isBodyEmpty', () => {
   test('empty forms', () => {
     expect(isBodyEmpty('')).toBe(true);

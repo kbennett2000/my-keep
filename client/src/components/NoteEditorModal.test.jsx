@@ -58,6 +58,12 @@ describe('NoteEditorModal', () => {
     expect(notes.updateNote).toHaveBeenCalledWith(5, { color: 'green' });
   });
 
+  test('shows the note timestamp in the toolbar', () => {
+    const stamped = { ...note, updated_at: new Date().toISOString() };
+    render(<NoteEditorModal note={stamped} onClose={() => {}} />);
+    expect(screen.getByText(/^Edited /)).toBeInTheDocument();
+  });
+
   test('deleting asks for confirmation, then deletes and closes', async () => {
     const onClose = vi.fn();
     render(<NoteEditorModal note={note} onClose={onClose} />);

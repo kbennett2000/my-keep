@@ -9,6 +9,7 @@ import ImageButton from './ImageButton.jsx';
 import RichTextEditor from './RichTextEditor.jsx';
 import ConfirmDialog from './ConfirmDialog.jsx';
 import { bodyToEditorHtml, isBodyEmpty } from '../notes/richText.js';
+import { formatNoteTimestamp } from '../notes/datetime.js';
 
 // Full-note editor. Title/body are edited locally and persisted with a single
 // PATCH on close; color, pin, archive, and checklist item ops persist
@@ -135,6 +136,9 @@ export default function NoteEditorModal({ note, onClose }) {
           <button className="icon-btn" aria-label="Delete" onClick={() => setConfirmingDelete(true)}>
             <Trash2 size={18} />
           </button>
+          {note.updated_at && (
+            <span className="modal-timestamp">Edited {formatNoteTimestamp(note.updated_at)}</span>
+          )}
           <div className="composer-spacer" />
           <button className="composer-save" onClick={close}>
             Close

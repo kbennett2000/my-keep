@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Pin, PinOff, Palette, Tag, Archive, ArchiveRestore, Trash2, Check } from 'lucide-react';
 import { useNotes } from '../notes/NotesContext.jsx';
 import { bodyToDisplayHtml } from '../notes/richText.js';
+import { formatNoteTimestamp } from '../notes/datetime.js';
 import ColorPicker from './ColorPicker.jsx';
 import LabelPicker from './LabelPicker.jsx';
 import AttachmentGrid from './AttachmentGrid.jsx';
@@ -72,6 +73,11 @@ export default function NoteCard({ note, onOpen }) {
         note.body && (
           <div
             className="note-body"
+            // A click on an auto-linked URL should follow the link (it opens in a
+            // new tab), not open the editor — so swallow the card's open-on-click.
+            onClick={(e) => {
+              if (e.target.closest('a')) stop(e);
+            }}
             dangerouslySetInnerHTML={{ __html: bodyToDisplayHtml(note.body) }}
           />
         )
@@ -85,6 +91,10 @@ export default function NoteCard({ note, onOpen }) {
             </span>
           ))}
         </div>
+      )}
+
+      {note.updated_at && (
+        <div className="note-timestamp">{formatNoteTimestamp(note.updated_at)}</div>
       )}
 
       <div className="note-toolbar" onClick={stop}>
