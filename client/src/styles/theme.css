@@ -60,6 +60,13 @@ body,
 #root {
   height: 100%;
 }
+/* Guard: the app manages its own vertical scroll (.notes-area), so nothing
+   should ever scroll the viewport sideways. This backstops any stray wide
+   element so the page can't scroll horizontally. */
+html,
+body {
+  overflow-x: hidden;
+}
 
 body {
   margin: 0;
@@ -124,6 +131,7 @@ button {
   color: var(--text);
   padding: 6px 14px;
   border-radius: 6px;
+  white-space: nowrap;
 }
 .topbar-logout:hover {
   background: var(--surface-2);
@@ -390,6 +398,11 @@ button {
   font-size: 0.92rem;
   padding: 2px 0;
 }
+/* Long unbreakable words in an item wrap instead of widening the card. */
+.note-checklist-item span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .note-checklist-item.checked span {
   text-decoration: line-through;
   color: var(--text-muted);
@@ -517,6 +530,9 @@ button {
   align-items: center;
   gap: 6px;
   flex: 1;
+  /* Without min-width:0 the input's intrinsic width keeps this flex item from
+     shrinking, pushing the whole top bar wider than a phone screen (#17). */
+  min-width: 0;
   max-width: 560px;
   margin: 0 16px;
   padding: 0 10px;
@@ -525,6 +541,7 @@ button {
 }
 .topbar-search input {
   flex: 1;
+  min-width: 0;
   border: none;
   background: none;
   outline: none;
