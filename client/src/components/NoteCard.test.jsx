@@ -76,4 +76,17 @@ describe('NoteCard', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Unarchive' }));
     expect(notes.updateNote).toHaveBeenCalledWith(7, { archived: false });
   });
+
+  test('a long checklist is capped to a preview with "+ N more"', () => {
+    const items = Array.from({ length: 11 }, (_, i) => ({ id: 100 + i, content: `item ${i}`, checked: 0 }));
+    const big = { ...listNote, items };
+    render(<NoteCard note={big} onOpen={() => {}} />);
+    // 8 shown (the cap), so item 7 is visible but item 8 is collapsed.
+    expect(screen.getByText('item 7')).toBeInTheDocument();
+    expect(screen.queryByText('item 8')).toBeNull();
+    expect(screen.getByText('+ 3 more')).toBeInTheDocument();
+    // A shown item's checkbox still works.
+    fireEvent.click(screen.getAllByRole('button', { name: 'Check item' })[0]);
+    expect(notes.updateItem).toHaveBeenCalledWith(8, 100, { checked: true });
+  });
 });

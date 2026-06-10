@@ -10,11 +10,19 @@ import ImageButton from './ImageButton.jsx';
 // buttons and checklist checkboxes stop propagation so they don't also open it.
 // Checklist items can be checked right here; text editing happens in the modal.
 
+// How many checklist items to preview on a card before collapsing the rest into
+// a "+ N more" line. The full list is always available in the editor modal.
+const CARD_ITEM_LIMIT = 8;
+
 export default function NoteCard({ note, onOpen }) {
   const { updateNote, deleteNote, updateItem, uploadAttachment } = useNotes();
   const [showColors, setShowColors] = useState(false);
   const [showLabels, setShowLabels] = useState(false);
   const stop = (e) => e.stopPropagation();
+
+  const sortedItems = [...note.items].sort((a, b) => (a.checked ? 1 : 0) - (b.checked ? 1 : 0));
+  const shownItems = sortedItems.slice(0, CARD_ITEM_LIMIT);
+  const hiddenCount = sortedItems.length - shownItems.length;
 
   return (
     <div
@@ -39,24 +47,23 @@ export default function NoteCard({ note, onOpen }) {
 
       {note.type === 'list' ? (
         <ul className="note-checklist">
-          {[...note.items]
-            .sort((a, b) => (a.checked ? 1 : 0) - (b.checked ? 1 : 0))
-            .map((it) => (
-              <li key={it.id} className={`note-checklist-item${it.checked ? ' checked' : ''}`}>
-                <button
-                  className="checkbox"
-                  aria-label={it.checked ? 'Uncheck item' : 'Check item'}
-                  aria-pressed={it.checked ? 'true' : 'false'}
-                  onClick={(e) => {
-                    stop(e);
-                    updateItem(note.id, it.id, { checked: !it.checked });
-                  }}
-                >
-                  {it.checked ? <Check size={14} /> : null}
-                </button>
-                <span>{it.content}</span>
-              </li>
-            ))}
+          {shownItems.map((it) => (
+            <li key={it.id} className={`note-checklist-item${it.checked ? ' checked' : ''}`}>
+              <button
+                className="checkbox"
+                aria-label={it.checked ? 'Uncheck item' : 'Check item'}
+                aria-pressed={it.checked ? 'true' : 'false'}
+                onClick={(e) => {
+                  stop(e);
+                  updateItem(note.id, it.id, { checked: !it.checked });
+                }}
+              >
+                {it.checked ? <Check size={14} /> : null}
+              </button>
+              <span>{it.content}</span>
+            </li>
+          ))}
+          {hiddenCount > 0 && <li className="note-checklist-more">+ {hiddenCount} more</li>}
         </ul>
       ) : (
         note.body && <div className="note-body">{note.body}</div>

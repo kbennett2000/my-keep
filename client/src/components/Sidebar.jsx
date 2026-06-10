@@ -5,11 +5,17 @@ import { useNotes } from '../notes/NotesContext.jsx';
 // "Edit labels" entry. Selecting a view entry sets the current view; the active
 // entry is highlighted.
 
-export default function Sidebar({ open, onEditLabels }) {
+export default function Sidebar({ open, onEditLabels, onNavigate }) {
   const { view, setView, labels } = useNotes();
 
   const isActive = (kind, labelId = null) =>
     view.kind === kind && (kind !== 'label' || view.labelId === labelId);
+
+  // Set a view, then let the parent react (e.g. close the overlay on mobile).
+  const go = (next) => {
+    setView(next);
+    onNavigate?.();
+  };
 
   const Item = ({ active, onClick, icon: Icon, children }) => (
     <button className={`sidebar-item${active ? ' active' : ''}`} onClick={onClick}>
@@ -22,7 +28,7 @@ export default function Sidebar({ open, onEditLabels }) {
     <nav className={`sidebar${open ? '' : ' collapsed'}`} aria-label="Views">
       <Item
         active={isActive('active')}
-        onClick={() => setView({ kind: 'active', labelId: null })}
+        onClick={() => go({ kind: 'active', labelId: null })}
         icon={Lightbulb}
       >
         Notes
@@ -32,7 +38,7 @@ export default function Sidebar({ open, onEditLabels }) {
         <Item
           key={l.id}
           active={isActive('label', l.id)}
-          onClick={() => setView({ kind: 'label', labelId: l.id })}
+          onClick={() => go({ kind: 'label', labelId: l.id })}
           icon={Tag}
         >
           {l.name}
@@ -41,7 +47,7 @@ export default function Sidebar({ open, onEditLabels }) {
 
       <Item
         active={isActive('archive')}
-        onClick={() => setView({ kind: 'archive', labelId: null })}
+        onClick={() => go({ kind: 'archive', labelId: null })}
         icon={Archive}
       >
         Archive
