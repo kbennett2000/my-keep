@@ -10,64 +10,20 @@ and **needs no internet** once it's set up.
 
 **Curious what it's like to use?** Take the quick visual tour → **[Using MyKeep](docs/USING-MYKEEP.md)**.
 
-## What you'll need
+## Install it
 
-One thing: **Docker**, with its **Compose** feature. Docker is a free tool that runs an app in a tidy,
-self-contained package so you don't have to install anything else by hand. If you don't have it yet,
-follow Docker's official guide for your system: <https://docs.docker.com/engine/install/>. (Their install
-includes Compose, which is what the `docker compose` command below uses.)
+MyKeep runs the same on every system — pick yours for step-by-step setup. Each takes about fifteen minutes,
+most of it just installing Docker the first time:
 
-You'll run a few commands in a **terminal** on the machine that will host MyKeep — for example your Ubuntu
-home server.
+- 🪟 **[Windows](docs/INSTALL-WINDOWS.md)**
+- 🍎 **[Mac](docs/INSTALL-MAC.md)**
+- 🐧 **[Linux / home server](docs/INSTALL-LINUX.md)**
 
-## Get it running
-
-**1. Get the code** onto the host machine and step into the folder:
-
-```bash
-git clone https://github.com/kbennett2000/my-keep.git
-cd my-keep
-```
-
-**2. Create your settings file** by copying the example:
-
-```bash
-cp .env.example .env
-```
-
-**3. Set your secret.** MyKeep signs login cookies with a secret string. Generate a random one — this
-command just prints a long, random value:
-
-```bash
-openssl rand -hex 32
-```
-
-Open `.env` in any text editor and paste what that printed as the value of `SESSION_SECRET`, so the line
-looks like `SESSION_SECRET=3f9c...` (your value will be different). Save the file.
-
-**4. Start it:**
-
-```bash
-docker compose up -d
-```
-
-The first run takes a minute or two while it builds — that's normal, and it only happens once.
-
-**5. Open it.** On any device on the same network, go to your server's address on port **8065**:
-
-```
-http://YOUR-SERVER-IP:8065
-```
-
-(Replace `YOUR-SERVER-IP` with the host machine's address on your network. Not sure what it is? Run
-`hostname -I` on the host — it prints something like `192.168.1.50`.)
-
-**6. Make your account.** The first screen lets you register a username and password. That's it — **you're
-running your own notes server.** 🎉
+The rest of this page covers what's the same once it's running — for all three.
 
 ## Everyone gets their own notes
 
-Anyone on your network can open that address and **register their own account**. Each account's notes are
+Anyone on your network can open MyKeep's address and **register their own account**. Each account's notes are
 private to that person — they can't see anyone else's.
 
 ## Change the port
@@ -99,8 +55,8 @@ git pull && docker compose up -d --build   # update to the latest version
 
 ## If something's not right
 
-- **It says `SESSION_SECRET` isn't set when starting.** You missed step 3 — generate a secret and put it in
-  `.env`, then run `docker compose up -d` again.
+- **It says `SESSION_SECRET` isn't set when starting.** You missed the secret step on your install page —
+  generate a secret and put it in `.env`, then run `docker compose up -d` again.
 - **`port is already allocated` / `address already in use`.** Something else is using port 8065. Pick another
   port (see *Change the port* above).
 - **You can't reach it from another device.** Make sure that device is on the **same network**, you used the
