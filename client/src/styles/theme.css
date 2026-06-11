@@ -534,6 +534,11 @@ button {
   width: 100%;
   max-width: 640px;
   cursor: default;
+  /* A solid, themed backing + rounded corners so any plain modal (e.g. the
+     label editor) is readable. NoteEditorModal overrides the background inline
+     with the note's color and gets its radius from .note-card. */
+  background: var(--surface);
+  border-radius: 8px;
   box-shadow: var(--shadow);
 }
 .modal .note-pin {
