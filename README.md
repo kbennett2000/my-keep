@@ -123,3 +123,8 @@ git pull && docker compose up -d --build   # update to the latest version
 
 - **Offline by design.** After the one-time build, MyKeep makes no calls to the internet — fonts and icons
   are bundled in. It's meant for a trusted home network (it serves plain `http`, not `https`).
+
+---
+
+_MyKeep is an independent project, not affiliated with or endorsed by Google. "Google Keep" is a trademark of
+Google LLC, used here only to describe what MyKeep is like._

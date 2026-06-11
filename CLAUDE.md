@@ -1,6 +1,6 @@
 # MyKeep
 
-A self-hosted, fully-offline Google Keep clone for home-LAN use. Node.js + Express +
+A self-hosted, fully-offline notes app inspired by Google Keep, for home-LAN use. Node.js + Express +
 `better-sqlite3` backend, React + Vite SPA, single Docker deployable. Zero internet dependency
 at runtime — no CDNs, self-hosted fonts, bundled icons. Default port **8065** (configurable via
 the `PORT` env var).
