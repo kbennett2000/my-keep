@@ -1,8 +1,14 @@
 # MyKeep
 
+![MyKeep — your private, offline notes, on your own network](docs/images/banner.png)
+
 Your own private notes app for your home network — a self-hosted take on Google Keep. Write notes and
 checklists, color them, pin and search them, add labels and images. It runs entirely on your own machine
 and **needs no internet** once it's set up.
+
+![The MyKeep notes grid — colorful notes, labels, a pinned section, and a checklist](docs/images/notes-grid.png)
+
+**Curious what it's like to use?** Take the quick visual tour → **[Using MyKeep](docs/USING-MYKEEP.md)**.
 
 ## What you'll need
 
@@ -29,7 +35,8 @@ cd my-keep
 cp .env.example .env
 ```
 
-**3. Set your secret.** MyKeep signs login cookies with a secret string. Generate a random one:
+**3. Set your secret.** MyKeep signs login cookies with a secret string. Generate a random one — this
+command just prints a long, random value:
 
 ```bash
 openssl rand -hex 32
@@ -52,7 +59,8 @@ The first run takes a minute or two while it builds — that's normal, and it on
 http://YOUR-SERVER-IP:8065
 ```
 
-(Replace `YOUR-SERVER-IP` with the host machine's IP address, e.g. `http://192.168.1.50:8065`.)
+(Replace `YOUR-SERVER-IP` with the host machine's address on your network. Not sure what it is? Run
+`hostname -I` on the host — it prints something like `192.168.1.50`.)
 
 **6. Make your account.** The first screen lets you register a username and password. That's it — **you're
 running your own notes server.** 🎉
@@ -97,6 +105,18 @@ git pull && docker compose up -d --build   # update to the latest version
   port (see *Change the port* above).
 - **You can't reach it from another device.** Make sure that device is on the **same network**, you used the
   host's IP address (not `localhost`), and the host's firewall allows the port.
+
+## Questions you might have
+
+- **I forgot my password.** There's no password reset yet. The simplest fix is to register a fresh account —
+  every account is separate, so no one else's notes are affected.
+- **How do I back up my notes?** They all live in the `data` folder (see *Where your notes live*). Copy that
+  folder somewhere safe and you have a complete backup; put it back to restore.
+- **Can I export my notes to a file?** Not yet — it's on the wish list. For now, the `data` folder is your
+  portable copy.
+- **Can I open it from outside my home?** Keep MyKeep on your home network. It serves plain `http` (not the
+  encrypted `https` that public sites use) and is built for a network you trust, so it's best not to expose
+  it to the open internet.
 
 ## Good to know
 
