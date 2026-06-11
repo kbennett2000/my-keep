@@ -114,9 +114,10 @@ git pull && docker compose up -d --build   # update to the latest version
   folder somewhere safe and you have a complete backup; put it back to restore.
 - **Can I export my notes to a file?** Not yet — it's on the wish list. For now, the `data` folder is your
   portable copy.
-- **Can I open it from outside my home?** Keep MyKeep on your home network. It serves plain `http` (not the
-  encrypted `https` that public sites use) and is built for a network you trust, so it's best not to expose
-  it to the open internet.
+- **Can I open it from outside my home?** On the open internet, no — keep MyKeep on a network you trust (it
+  serves plain `http`, not the encrypted `https` that public sites use). But you *can* reach your notes when
+  you're away with **Tailscale**, a free tool that privately and securely links your own devices, without
+  exposing MyKeep to the public. Here's how → **[Reaching MyKeep from anywhere](docs/REMOTE-ACCESS.md)**.
 
 ## Good to know
 
