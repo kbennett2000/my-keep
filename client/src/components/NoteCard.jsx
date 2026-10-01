@@ -3,6 +3,7 @@ import { Pin, PinOff, Palette, Tag, Archive, ArchiveRestore, Trash2, Check } fro
 import { useNotes } from '../notes/NotesContext.jsx';
 import { bodyToDisplayHtml } from '../notes/richText.js';
 import { formatNoteTimestamp } from '../notes/datetime.js';
+import { noteSurfaceStyle } from '../notes/noteColor.js';
 import ColorPicker from './ColorPicker.jsx';
 import LabelPicker from './LabelPicker.jsx';
 import AttachmentGrid from './AttachmentGrid.jsx';
@@ -31,7 +32,7 @@ export default function NoteCard({ note, onOpen }) {
   return (
     <div
       className="note-card"
-      style={{ background: `var(--note-${note.color})` }}
+      style={noteSurfaceStyle(note.color)}
       onClick={() => onOpen(note)}
     >
       <button

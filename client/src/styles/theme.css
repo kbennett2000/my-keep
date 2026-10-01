@@ -46,19 +46,35 @@
   --overlay-strong: rgba(255, 255, 255, 0.18);
   --swatch-border: rgba(255, 255, 255, 0.3);
 
-  /* Keep's dark-mode note palette. */
+  /* Dark notes "glow": a dark card edged in its bright light-mode color.
+     A dark *fill* can't carry these colors (dark yellow is olive, dark red
+     maroon), so the fill is only a faint tint: the light color mixed 14% into
+     #202124 in OKLab. Each -edge must equal the light --note-* (theme.test.js);
+     light mode leaves -edge undefined, so it keeps the hairline border. */
   --note-default: #202124;
-  --note-red: #5c2b29;
-  --note-orange: #614a19;
-  --note-yellow: #635d19;
-  --note-green: #345920;
-  --note-teal: #16504b;
-  --note-blue: #2d555e;
-  --note-darkblue: #1e3a5f;
-  --note-purple: #42275e;
-  --note-pink: #5b2245;
-  --note-brown: #442f19;
-  --note-gray: #3c3f43;
+  --note-red: #3a2f30;
+  --note-orange: #3a342a;
+  --note-yellow: #3a3a31;
+  --note-green: #353b33;
+  --note-teal: #313b3c;
+  --note-blue: #353a3d;
+  --note-darkblue: #31363e;
+  --note-purple: #36323e;
+  --note-pink: #3a363b;
+  --note-brown: #383535;
+  --note-gray: #38393c;
+
+  --note-red-edge: #f28b82;
+  --note-orange-edge: #fbbc04;
+  --note-yellow-edge: #fff475;
+  --note-green-edge: #ccff90;
+  --note-teal-edge: #a7ffeb;
+  --note-blue-edge: #cbf0f8;
+  --note-darkblue-edge: #aecbfa;
+  --note-purple-edge: #d7aefb;
+  --note-pink-edge: #fdcfe8;
+  --note-brown-edge: #e6c9a8;
+  --note-gray-edge: #e8eaed;
 }
 
 * {
@@ -202,7 +218,7 @@ button {
   border-radius: 6px;
 }
 .auth-field input:focus {
-  outline: 2px solid var(--note-darkblue);
+  outline: 2px solid var(--note-darkblue-edge, var(--note-darkblue));
   outline-offset: -1px;
 }
 .auth-error {
@@ -215,7 +231,7 @@ button {
   padding: 10px;
   border: none;
   border-radius: 6px;
-  background: var(--note-darkblue);
+  background: var(--note-darkblue-edge, var(--note-darkblue));
   color: #202124;
   font-weight: 500;
 }
@@ -351,6 +367,12 @@ button {
 }
 .note-card:hover {
   box-shadow: var(--shadow);
+}
+/* Dark mode draws note edges at 2px so the colored "glow" edge reads clearly
+   (the color comes from noteSurfaceStyle in notes/noteColor.js). */
+[data-theme='dark'] .note-card,
+[data-theme='dark'] .composer.open {
+  border-width: 2px;
 }
 .note-pin {
   position: absolute;
@@ -628,7 +650,8 @@ button {
   background: var(--surface-2);
 }
 .sidebar-item.active {
-  background: var(--note-orange);
+  /* The bright Keep amber in both themes (dark notes only tint with it). */
+  background: var(--note-orange-edge, var(--note-orange));
   font-weight: 500;
 }
 [data-theme='dark'] .sidebar-item.active {

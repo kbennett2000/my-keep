@@ -1,10 +1,7 @@
-// Row of note-color swatches. Names match the server's COLORS allow-list and
-// the --note-* CSS variables. Selecting one fires onSelect(name).
+import { COLORS, swatchStyle } from '../notes/noteColor.js';
 
-const COLORS = [
-  'default', 'red', 'orange', 'yellow', 'green', 'teal',
-  'blue', 'darkblue', 'purple', 'pink', 'brown', 'gray',
-];
+// Row of note-color swatches (see notes/noteColor.js for the palette).
+// Selecting one fires onSelect(name).
 
 export default function ColorPicker({ value, onSelect }) {
   return (
@@ -14,7 +11,7 @@ export default function ColorPicker({ value, onSelect }) {
           key={c}
           type="button"
           className={`color-swatch${value === c ? ' selected' : ''}`}
-          style={{ background: `var(--note-${c})` }}
+          style={swatchStyle(c)}
           aria-label={c}
           title={c}
           onClick={(e) => {

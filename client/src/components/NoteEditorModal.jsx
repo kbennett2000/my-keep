@@ -10,6 +10,7 @@ import RichTextEditor from './RichTextEditor.jsx';
 import ConfirmDialog from './ConfirmDialog.jsx';
 import { bodyToEditorHtml, isBodyEmpty } from '../notes/richText.js';
 import { formatNoteTimestamp } from '../notes/datetime.js';
+import { noteSurfaceStyle } from '../notes/noteColor.js';
 
 // Full-note editor. Title/body are edited locally and persisted with a single
 // PATCH on close; color, pin, archive, and checklist item ops persist
@@ -73,7 +74,7 @@ export default function NoteEditorModal({ note, onClose }) {
     <div className="modal-backdrop" onMouseDown={close}>
       <div
         className="modal note-card"
-        style={{ background: `var(--note-${note.color})` }}
+        style={noteSurfaceStyle(note.color)}
         onMouseDown={(e) => e.stopPropagation()}
       >
         <button

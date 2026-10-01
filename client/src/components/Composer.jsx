@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { ListChecks, Type, Palette } from 'lucide-react';
 import { useNotes } from '../notes/NotesContext.jsx';
 import { isBodyEmpty } from '../notes/richText.js';
+import { noteSurfaceStyle } from '../notes/noteColor.js';
 import ColorPicker from './ColorPicker.jsx';
 import ChecklistEditor from './ChecklistEditor.jsx';
 import RichTextEditor from './RichTextEditor.jsx';
@@ -76,7 +77,7 @@ export default function Composer() {
   }
 
   return (
-    <div className="composer open" style={{ background: `var(--note-${draft.color})` }}>
+    <div className="composer open" style={noteSurfaceStyle(draft.color)}>
       <input
         className="composer-title"
         placeholder="Title"
